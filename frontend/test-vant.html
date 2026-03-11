@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/vant@4/lib/index.css" />
+</head>
+<body>
+  <div id="app">
+    <van-goods-action>
+      <van-goods-action-icon icon="chat-o" text="客服" />
+      <van-goods-action-button type="danger" text="立即购买" />
+    </van-goods-action>
+  </div>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/vant@4/lib/vant.min.js"></script>
+  <script>
+    const { createApp } = Vue;
+    createApp({}).use(vant).mount('#app');
+  </script>
+</body>
+</html>

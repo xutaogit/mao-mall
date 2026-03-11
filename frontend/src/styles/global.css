@@ -1,0 +1,18 @@
+:root {
+  --primary-color: #ff6b35;
+  --secondary-color: #f7931e;
+  --text-color: #333;
+  --text-light: #666;
+  --border-color: #eee;
+  --bg-color: #f7f8fa;
+}
+
+body {
+  color: var(--text-color);
+  background: var(--bg-color);
+}
+
+.page-container {
+  padding-bottom: 50px;
+  min-height: 100vh;
+}
