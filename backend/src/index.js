@@ -52,6 +52,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: '猫商城 API 运行中 (MongoDB)' });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
-});
+// 本地开发时启动监听；Vercel Serverless 环境下导出 app
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
+  });
+}
+
+export default app;
