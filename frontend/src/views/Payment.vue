@@ -24,7 +24,7 @@
         <van-radio-group v-model="selectedPayType">
           <van-cell clickable @click="selectedPayType = 1">
             <template #icon>
-              <van-radio name="1" />
+              <van-radio :name="1" />
             </template>
             <template #title>
               <span class="pay-type-label">支付宝</span>
@@ -32,7 +32,7 @@
           </van-cell>
           <van-cell clickable @click="selectedPayType = 2">
             <template #icon>
-              <van-radio name="2" />
+              <van-radio :name="2" />
             </template>
             <template #title>
               <span class="pay-type-label">微信支付</span>
