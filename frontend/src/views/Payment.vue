@@ -22,22 +22,18 @@
       <!-- 支付方式选择 -->
       <van-cell-group title="选择支付方式" v-if="!payment || payment.status === 0">
         <van-radio-group v-model="selectedPayType">
-          <van-cell clickable @click="selectedPayType = 1">
-            <template #icon>
-              <van-radio :name="1" />
-            </template>
-            <template #title>
-              <span class="pay-type-label">支付宝</span>
-            </template>
-          </van-cell>
-          <van-cell clickable @click="selectedPayType = 2">
-            <template #icon>
-              <van-radio :name="2" />
-            </template>
-            <template #title>
-              <span class="pay-type-label">微信支付</span>
-            </template>
-          </van-cell>
+          <van-cell-group inset>
+            <van-cell title="支付宝" clickable @click="selectedPayType = 1">
+              <template #right-icon>
+                <van-radio :name="1" />
+              </template>
+            </van-cell>
+            <van-cell title="微信支付" clickable @click="selectedPayType = 2">
+              <template #right-icon>
+                <van-radio :name="2" />
+              </template>
+            </van-cell>
+          </van-cell-group>
         </van-radio-group>
       </van-cell-group>
 
