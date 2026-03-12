@@ -79,7 +79,7 @@ router.post('/create', authMiddleware, async (req, res) => {
     const { addressId, cartItemIds, note } = req.body;
 
     if (!addressId || !cartItemIds || cartItemIds.length === 0) {
-      return res.status(400).json({ code: 400, message: '参数错误' });
+      return res.status(400).json({ success: false, message: '参数错误' });
     }
 
     // 获取购物车商品
@@ -89,7 +89,7 @@ router.post('/create', authMiddleware, async (req, res) => {
     }).populate('productId');
 
     if (cartItems.length === 0) {
-      return res.status(400).json({ code: 400, message: '购物车商品不存在' });
+      return res.status(400).json({ success: false, message: '购物车商品不存在' });
     }
 
     // 获取地址信息
@@ -100,7 +100,7 @@ router.post('/create', authMiddleware, async (req, res) => {
     });
 
     if (!address) {
-      return res.status(404).json({ code: 404, message: '地址不存在' });
+      return res.status(404).json({ success: false, message: '地址不存在' });
     }
 
     // 计算总金额并检查库存
@@ -111,11 +111,11 @@ router.post('/create', authMiddleware, async (req, res) => {
       const product = item.productId;
       
       if (!product) {
-        return res.status(400).json({ code: 400, message: '商品不存在' });
+        return res.status(400).json({ success: false, message: '商品不存在' });
       }
 
       if (product.stock < item.quantity) {
-        return res.status(400).json({ code: 400, message: `${product.name} 库存不足` });
+        return res.status(400).json({ success: false, message: `${product.name} 库存不足` });
       }
 
       totalAmount += item.price * item.quantity;
@@ -131,7 +131,7 @@ router.post('/create', authMiddleware, async (req, res) => {
     // 生成订单号
     const orderSn = 'ORD' + Date.now() + Math.floor(Math.random() * 1000);
 
-    // 创建订单
+    // 创建订单（状态为待付款）
     const order = new Order({
       orderSn,
       memberId: req.user.id,
@@ -144,7 +144,7 @@ router.post('/create', authMiddleware, async (req, res) => {
       receiverProvince: address.province,
       receiverCity: address.city,
       receiverRegion: address.region,
-      receiverAddress: address.detailAddress,
+      receiverDetailAddress: address.detailAddress,
       note
     });
 
@@ -161,13 +161,13 @@ router.post('/create', authMiddleware, async (req, res) => {
     await CartItem.deleteMany({ _id: { $in: cartItemIds } });
 
     res.json({
-      code: 200,
+      success: true,
       message: '订单创建成功',
       data: order
     });
   } catch (error) {
     console.error('创建订单失败:', error);
-    res.status(500).json({ code: 500, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

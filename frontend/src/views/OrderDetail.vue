@@ -48,6 +48,8 @@
       <van-cell-group class="order-info-section">
         <van-cell title="订单信息" />
         <van-cell title="订单号" :value="order.orderSn" />
+        <van-cell title="订单状态" :value="getStatusText(order.status)" />
+        <van-cell v-if="order.payType" title="支付方式" :value="getPayTypeText(order.payType)" />
         <van-cell title="创建时间" :value="formatDate(order.createdAt)" />
         <van-cell v-if="order.paymentTime" title="支付时间" :value="formatDate(order.paymentTime)" />
         <van-cell v-if="order.deliveryTime" title="发货时间" :value="formatDate(order.deliveryTime)" />
@@ -96,6 +98,10 @@ const statusMap = {
 const getStatusText = (status) => statusMap[status]?.text || '未知'
 const getStatusIcon = (status) => statusMap[status]?.icon || 'question-o'
 
+const getPayTypeText = (payType) => {
+  return payType === 1 ? '支付宝' : payType === 2 ? '微信支付' : '未支付'
+}
+
 const formatDate = (date) => {
   if (!date) return ''
   return new Date(date).toLocaleString('zh-CN')
@@ -116,14 +122,7 @@ const loadOrder = async () => {
 }
 
 const handlePay = async () => {
-  try {
-    await payOrder(order.value._id)
-    showToast('支付成功')
-    loadOrder()
-  } catch (error) {
-    console.error('支付失败', error)
-    showToast(error.response?.data?.message || '支付失败')
-  }
+  router.push(`/payment/${order.value._id}`)
 }
 
 const handleCancel = async () => {

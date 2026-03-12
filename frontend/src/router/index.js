@@ -67,6 +67,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/payment/:orderId',
+    name: 'Payment',
+    component: () => import('../views/Payment.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/refund/apply',
     name: 'RefundApply',
     component: () => import('../views/RefundApply.vue'),

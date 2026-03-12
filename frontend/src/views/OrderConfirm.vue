@@ -251,9 +251,9 @@ const onSubmit = async () => {
 
     showToast('订单创建成功')
     
-    // 跳转到订单详情或支付页面
+    // 跳转到支付页面
     setTimeout(() => {
-      router.replace(`/order/${res.data._id}`)
+      router.replace(`/payment/${res.data._id}`)
     }, 1000)
   } catch (error) {
     console.error('创建订单失败', error)
