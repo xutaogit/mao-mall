@@ -97,7 +97,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
-import { getOrderDetail } from '../api/order'
+import { getOrder } from '../api/order'
 import { createPayment, getPaymentDetail, mockPay, getOrderPayment } from '../api/payment'
 
 const router = useRouter()
@@ -139,7 +139,7 @@ const formatTime = (time) => {
 
 const loadOrderDetail = async () => {
   try {
-    const res = await getOrderDetail(route.params.orderId)
+    const res = await getOrder(route.params.orderId)
     order.value = res.data
   } catch (error) {
     console.error('获取订单详情失败', error)
