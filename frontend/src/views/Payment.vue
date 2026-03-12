@@ -98,7 +98,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
 import { getOrderDetail } from '../api/order'
-import { createPayment, getPaymentDetail, mockPay } from '../api/payment'
+import { createPayment, getPaymentDetail, mockPay, getOrderPayment } from '../api/payment'
 
 const router = useRouter()
 const route = useRoute()
@@ -150,7 +150,7 @@ const loadOrderDetail = async () => {
 const loadPaymentDetail = async () => {
   try {
     // 尝试获取该订单的支付单据
-    const res = await getPaymentDetail(route.params.orderId)
+    const res = await getOrderPayment(route.params.orderId)
     payment.value = res.data
   } catch (error) {
     // 如果没有支付单据，不显示错误
