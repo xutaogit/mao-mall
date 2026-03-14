@@ -100,6 +100,18 @@ const routes = [
     name: 'MyCoupons',
     component: () => import('../views/MyCoupons.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/distributor/apply',
+    name: 'DistributorApply',
+    component: () => import('../views/DistributorApply.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/distributor/center',
+    name: 'DistributorCenter',
+    component: () => import('../views/DistributorCenter.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

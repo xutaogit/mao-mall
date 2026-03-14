@@ -52,6 +52,16 @@
     </van-cell-group>
 
     <van-cell-group class="menu-group">
+      <van-cell 
+        :title="distributorStatus === 1 ? '分销中心' : distributorStatus === 0 ? '分销申请审核中' : '成为分销员'" 
+        is-link 
+        :to="distributorStatus === 1 ? '/distributor/center' : '/distributor/apply'"
+        icon="gold-coin-o"
+        :label="distributorStatus === 1 ? '推广商品赚取佣金' : ''"
+      />
+    </van-cell-group>
+
+    <van-cell-group class="menu-group">
       <van-cell title="设置" is-link icon="setting-o" />
       <van-cell v-if="isLoggedIn" title="退出登录" icon="logout" @click="handleLogout" />
     </van-cell-group>
@@ -71,11 +81,13 @@ import { useRouter } from 'vue-router'
 import { showConfirmDialog, showToast } from 'vant'
 import { getUserInfo, logout } from '../api/auth'
 import { getOrders } from '../api/order'
+import { getDistributorInfo } from '../api/distributor'
 
 const router = useRouter()
 const active = ref(3)
 const userInfo = ref(null)
 const orderCounts = ref({ 0: 0, 1: 0, 2: 0, 3: 0 })
+const distributorStatus = ref(null) // null:未申请 0:审核中 1:已通过 2:已拒绝
 const defaultAvatar = 'https://img.yzcdn.cn/vant/cat.jpeg'
 
 const isLoggedIn = computed(() => {
@@ -116,6 +128,16 @@ const loadOrderCounts = async () => {
   }
 }
 
+const loadDistributorInfo = async () => {
+  if (!isLoggedIn.value) return
+  try {
+    const res = await getDistributorInfo()
+    distributorStatus.value = res.data?.status ?? null
+  } catch (error) {
+    console.error('获取分销员信息失败', error)
+  }
+}
+
 const handleUserClick = () => {
   if (!isLoggedIn.value) {
     router.push('/login')
@@ -144,6 +166,7 @@ onMounted(() => {
   }
   loadUserInfo()
   loadOrderCounts()
+  loadDistributorInfo()
 })
 </script>
 
