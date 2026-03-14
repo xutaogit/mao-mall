@@ -2,7 +2,7 @@ import express from 'express';
 import Distributor from '../models/Distributor.js';
 import ProductCommission from '../models/ProductCommission.js';
 import DistributionOrder from '../models/DistributionOrder.js';
-import ProductSku from '../models/ProductSku.js';
+import { SkuStock } from '../models/ProductSku.js';
 
 const router = express.Router();
 
@@ -236,7 +236,7 @@ router.post('/commissions/batch', async (req, res) => {
     if (skuIds && skuIds.length > 0) {
       for (const skuId of skuIds) {
         // 需要先查询SKU对应的productId
-        const sku = await ProductSku.findById(skuId);
+        const sku = await SkuStock.findById(skuId);
         if (sku) {
           operations.push({
             updateOne: {

@@ -1,154 +1,299 @@
-# 猫猫商城项目开发规范
+# 猫商城项目开发规范 v2.0
 
-**版本：** v1.0.0  
-**更新时间：** 2026-03-06
+## 项目架构
+- **后端：** Node.js + Express + MongoDB (端口3000)
+- **H5商城：** Vue3 + Vite + Vant 4.x (端口5173)
+- **管理后台：** Vue3 + Vite + Element Plus (端口5174)
+- **部署：** Vercel + MongoDB Atlas
+- **域名：** m.maomall.top (H5) / admin.maomall.top (后台) / api.maomall.top (API)
 
----
+## 技术栈版本（严格遵守）
 
-## 📋 目录
+### 后端
+- Node.js: >=18.x (Vercel 使用 20.x)
+- Express: 4.18.2
+- Mongoose: 8.0.3
+- JWT: jsonwebtoken 9.0.3
+- 密码加密: bcryptjs 3.0.3
 
-1. [技术栈版本规范](#技术栈版本规范)
-2. [前端开发规范](#前端开发规范)
-3. [后端开发规范](#后端开发规范)
-4. [数据库规范](#数据库规范)
-5. [API 接口规范](#api-接口规范)
-6. [常见问题和解决方案](#常见问题和解决方案)
+### 前端 H5
+- Vue: 3.4.0
+- Vite: 5.0.0
+- **Vant: 4.8.0** ⚠️ 重要：4.x 组件名称有变化
+- Vue Router: 4.2.5
+- Axios: 1.6.0
 
----
+### 管理后台
+- Vue: 3.4.0
+- Element Plus: 2.5.0
+- 其他同前端 H5
 
-## 1. 技术栈版本规范
+## ⚠️ 关键注意事项（必读）
 
-### 1.1 前端技术栈
-
-| 技术 | 版本 | 说明 |
-|------|------|------|
-| Node.js | >= 16.x | 推荐使用 LTS 版本 |
-| Vue | 3.4.0 | 使用 Composition API |
-| Vite | 5.0.0 | 构建工具 |
-| Vant | 4.9.22 | **重要：使用 4.x 版本** |
-| Vue Router | 4.2.5 | 路由管理 |
-| Pinia | 2.1.7 | 状态管理 |
-| Axios | 1.6.0 | HTTP 客户端 |
-
-### 1.2 后端技术栈
-
-| 技术 | 版本 | 说明 |
-|------|------|------|
-| Node.js | >= 16.x | 推荐使用 LTS 版本 |
-| Express | 4.18.2 | Web 框架 |
-| MongoDB | >= 5.0 | 数据库 |
-| Mongoose | 8.0.3 | ODM 框架 |
-| bcryptjs | 2.4.3 | 密码加密 |
-| jsonwebtoken | 9.0.2 | JWT 认证 |
-
-### 1.3 开发工具
-
-- **编辑器：** VS Code / Cursor
-- **包管理器：** npm（推荐）或 yarn
-- **API 测试：** Postman / Apifox
-- **版本控制：** Git
-
----
-
-## 2. 前端开发规范
-
-### 2.1 Vant 4.x 组件使用规范 ⭐⭐⭐
-
-#### 重要变更说明
-
-Vant 4.x 相比 3.x 有重大变更，必须注意以下组件名称变化：
+### 1. Vant 4.x 组件名称变更（高频错误）
 
 | Vant 3.x | Vant 4.x | 说明 |
 |----------|----------|------|
-| `van-goods-action` | `van-action-bar` | 商品操作栏 |
-| `van-goods-action-icon` | `van-action-bar-icon` | 操作栏图标 |
-| `van-goods-action-button` | `van-action-bar-button` | 操作栏按钮 |
-| `van-submit-bar` | `van-submit-bar` | 提交订单栏（未变） |
+| van-goods-action | van-action-bar | 商品操作栏 |
+| van-goods-action-icon | van-action-bar-icon | 操作栏图标 |
+| van-goods-action-button | van-action-bar-button | 操作栏按钮 |
 
-#### 正确使用示例
-
+✅ 正确写法：
 ```vue
-<template>
-  <!-- ✅ 正确：Vant 4.x -->
-  <van-action-bar>
-    <van-action-bar-icon icon="chat-o" text="客服" />
-    <van-action-bar-icon icon="cart-o" text="购物车" />
-    <van-action-bar-button type="warning" text="加入购物车" />
-    <van-action-bar-button type="danger" text="立即购买" />
-  </van-action-bar>
-
-  <!-- ❌ 错误：Vant 3.x 写法 -->
-  <van-goods-action>
-    <van-goods-action-icon icon="chat-o" text="客服" />
-    <van-goods-action-button type="danger" text="立即购买" />
-  </van-goods-action>
-</template>
+<van-action-bar>
+  <van-action-bar-icon icon="chat-o" text="客服" />
+  <van-action-bar-button type="danger" text="立即购买" />
+</van-action-bar>
 ```
 
-#### 全局注册方式
+❌ 错误写法（不要使用）：
+```vue
+<van-goods-action>
+  <van-goods-action-icon icon="chat-o" />
+</van-goods-action>
+```
 
+### 2. 后端响应格式（统一标准）
+
+所有 API 必须返回：
 ```javascript
-// main.js
-import { createApp } from 'vue'
-import Vant from 'vant'
-import 'vant/lib/index.css'
+// 成功
+{ success: true, data: {}, message: "成功" }
 
-const app = createApp(App)
-app.use(Vant) // 全局注册所有 Vant 组件
+// 失败
+{ success: false, message: "错误信息" }
 ```
 
-### 2.2 项目结构规范
+前端响应拦截器直接返回 `response.data`，不检查 `res.code`
 
-```
-frontend/
-├── src/
-│   ├── api/              # API 接口封装
-│   │   ├── auth.js       # 认证相关
-│   │   ├── product.js    # 商品相关
-│   │   ├── cart.js       # 购物车相关
-│   │   ├── order.js      # 订单相关
-│   │   ├── address.js    # 地址相关
-│   │   ├── coupon.js     # 优惠券相关
-│   │   └── refund.js     # 退款相关
-│   ├── views/            # 页面组件
-│   ├── components/       # 公共组件
-│   ├── router/           # 路由配置
-│   ├── stores/           # Pinia 状态管理
-│   ├── utils/            # 工具函数
-│   │   └── request.js    # Axios 封装
-│   ├── styles/           # 全局样式
-│   ├── App.vue           # 根组件
-│   └── main.js           # 入口文件
-├── public/               # 静态资源
-├── vite.config.js        # Vite 配置
-└── package.json          # 依赖配置
+### 3. MongoDB ObjectId 验证（防止 500 错误）
+
+查询前必须验证 ObjectId 格式：
+```javascript
+// ✅ 正确
+if (categoryId && categoryId.match(/^[0-9a-fA-F]{24}$/)) {
+  query.categoryId = categoryId
+}
+
+// ❌ 错误：直接使用会导致 Cast 错误
+query.categoryId = categoryId
 ```
 
-### 2.3 Vue 3 Composition API 规范
+### 4. Vercel Serverless 配置
 
-#### 组件结构顺序
+后端 index.js 必须：
+```javascript
+// ✅ 正确
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT)
+}
+export default app
+
+// ❌ 错误：Vercel 环境下会失败
+app.listen(PORT)
+```
+
+### 5. 环境变量
+
+**后端（Vercel 面板配置）：**
+```
+MONGODB_URI=mongodb+srv://...
+MONGODB_DB_NAME=mao-mall
+JWT_SECRET=your-secret
+ALLOWED_ORIGINS=https://admin.maomall.top,https://m.maomall.top
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin123
+```
+
+**前端（Vercel 面板配置）：**
+```
+VITE_API_URL=https://api.maomall.top/api
+```
+
+## 项目结构
+
+### 后端 (backend/)
+```
+src/
+├── config/database.js          # MongoDB 连接
+├── middleware/auth.js          # JWT 认证
+├── models/                     # 数据模型
+│   ├── Member.js               # 用户
+│   ├── Product.js              # 商品
+│   ├── ProductSku.js           # SKU
+│   ├── ProductCommission.js    # 商品佣金
+│   ├── Order.js                # 订单
+│   ├── OrderRefund.js          # 退款
+│   ├── Payment.js              # 支付记录
+│   ├── CartItem.js             # 购物车
+│   ├── Category.js             # 分类
+│   ├── Coupon.js               # 优惠券
+│   ├── Distributor.js          # 分销员
+│   ├── DistributionOrder.js    # 分销订单
+│   └── DistributionRelation.js # 分销关系
+├── routes/                     # API 路由
+│   ├── auth.js                 # 认证
+│   ├── products.js             # 商品
+│   ├── sku.js                  # SKU
+│   ├── orders.js               # 订单
+│   ├── cart.js                 # 购物车
+│   ├── addresses.js            # 地址
+│   ├── coupon.js               # 优惠券
+│   ├── refund.js               # 退款
+│   ├── payment.js              # 支付
+│   ├── distributor.js          # 分销（用户端）
+│   └── distributorAdmin.js     # 分销（管理端）
+└── index.js                    # 入口
+```
+
+### 前端 H5 (frontend/)
+```
+src/
+├── api/                        # API 封装
+├── views/                      # 页面组件
+│   ├── Home.vue                # 首页
+│   ├── ProductDetail.vue       # 商品详情
+│   ├── Cart.vue                # 购物车
+│   ├── OrderConfirm.vue        # 订单确认
+│   ├── Payment.vue             # 支付页面
+│   ├── User.vue                # 个人中心
+│   ├── DistributorApply.vue    # 分销申请
+│   └── DistributorCenter.vue   # 分销中心
+├── router/index.js             # 路由配置
+└── utils/request.js            # Axios 封装
+```
+
+### 管理后台 (admin/)
+```
+src/
+├── api/                        # API 封装
+├── views/
+│   ├── Login.vue               # 登录
+│   ├── Products.vue            # 商品列表
+│   ├── ProductEdit.vue         # 商品编辑（含SKU）
+│   ├── Orders.vue              # 订单管理
+│   ├── Refunds.vue             # 退款管理
+│   └── Coupons.vue             # 优惠券管理
+├── router/index.js
+└── utils/request.js
+```
+
+## 核心功能模块
+
+1. **商品管理** - CRUD、SKU、分类、佣金配置
+2. **订单管理** - 创建、支付（模拟）、发货、退款
+3. **用户系统** - 注册登录、地址、个人中心
+4. **购物车** - 加购、数量调整、结算
+5. **优惠券** - 创建、领取、使用（满减/折扣/无门槛）
+6. **分销系统** - 申请审核、推广链接、佣金结算
+7. **支付系统** - 支付单据、模拟支付（待接入真实支付）
+
+## 认证机制
+
+### JWT Token
+- **用户端：** `localStorage.getItem('token')`
+- **管理端：** `localStorage.getItem('adminToken')`
+- **请求头：** `Authorization: Bearer ${token}`
+- **过期时间：** 7天
+
+### 路由守卫
+```javascript
+// H5 前端
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (to.meta.requiresAuth && !token) {
+    next('/login')
+  } else {
+    next()
+  }
+})
+
+// 管理后台
+router.beforeEach((to, from, next) => {
+  const adminToken = localStorage.getItem('adminToken')
+  if (to.path !== '/login' && !adminToken) {
+    next('/login')
+  } else {
+    next()
+  }
+})
+```
+
+## 数据库规范
+
+### 字段命名
+- ✅ 驼峰命名：`userId`, `productName`, `createdAt`
+- ❌ 下划线：~~`user_id`~~, ~~`product_name`~~
+
+### 通用字段
+```javascript
+{
+  createdAt: Date,      // 自动
+  updatedAt: Date,      // 自动
+  deleteStatus: {       // 软删除
+    type: Number,
+    default: 0          // 0-未删除 1-已删除
+  }
+}
+```
+
+### 状态枚举
+- **订单状态：** 0-待付款 1-待发货 2-已发货 3-已完成 4-已关闭
+- **退款状态：** 0-待审核 1-审核通过 2-审核拒绝 3-已完成
+- **支付状态：** 0-待支付 1-已支付 2-已取消 3-已退款
+- **分销员状态：** 0-待审核 1-审核通过 2-审核拒绝
+
+## API 接口规范
+
+### RESTful 设计
+- GET `/api/products` - 获取列表
+- GET `/api/products/:id` - 获取详情
+- POST `/api/products` - 创建
+- PUT `/api/products/:id` - 更新
+- DELETE `/api/products/:id` - 删除
+- PATCH `/api/products/:id/publish` - 部分更新
+
+### 分页参数
+```javascript
+// 请求
+{ page: 1, pageSize: 10, keyword: '', categoryId: '' }
+
+// 响应
+{
+  success: true,
+  data: {
+    list: [],
+    total: 100,
+    page: 1,
+    pageSize: 10,
+    totalPages: 10
+  }
+}
+```
+
+## Vue 3 组件规范
 
 ```vue
 <template>
-  <!-- 模板内容 -->
+  <!-- 模板 -->
 </template>
 
 <script setup>
-// 1. 导入依赖
+// 1. 导入
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-// 2. 定义响应式数据
+// 2. 响应式数据
 const loading = ref(false)
 const form = reactive({})
 
-// 3. 定义计算属性
+// 3. 计算属性
 const total = computed(() => {})
 
-// 4. 定义方法
-const handleSubmit = () => {}
+// 4. 方法
+const handleSubmit = async () => {}
 
-// 5. 生命周期钩子
+// 5. 生命周期
 onMounted(() => {})
 </script>
 
@@ -157,680 +302,51 @@ onMounted(() => {})
 </style>
 ```
 
-#### 响应式数据使用规范
+## 常见问题
 
-```javascript
-// ✅ 正确：使用 ref 定义基本类型
-const count = ref(0)
-const name = ref('')
+### 1. Vant 组件不显示
+**原因：** 使用了 Vant 3.x 组件名  
+**解决：** 改用 Vant 4.x 组件名（见上文）
 
-// ✅ 正确：使用 reactive 定义对象
-const form = reactive({
-  name: '',
-  phone: ''
-})
+### 2. Cast to ObjectId failed
+**原因：** 传入非法 ObjectId  
+**解决：** 查询前验证格式
 
-// ❌ 错误：不要解构 reactive 对象
-const { name, phone } = reactive({ name: '', phone: '' })
+### 3. Vercel 部署失败
+**检查：**
+- Node.js 版本（20.x）
+- 环境变量是否配置
+- Root Directory 是否正确
 
-// ✅ 正确：使用 toRefs 解构
-const { name, phone } = toRefs(reactive({ name: '', phone: '' }))
-```
+### 4. CORS 跨域
+**解决：** 更新后端 `ALLOWED_ORIGINS` 环境变量
 
-### 2.4 路由配置规范
+### 5. 前端请求超时
+**检查：** `vite.config.js` 代理端口是否与后端一致
 
-```javascript
-// router/index.js
-const routes = [
-  {
-    path: '/product/:id',
-    name: 'ProductDetail',
-    component: () => import('../views/ProductDetail.vue'),
-    meta: { 
-      requiresAuth: false,  // 是否需要登录
-      title: '商品详情'      // 页面标题
-    }
-  }
-]
-
-// 路由守卫
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
-  
-  if (to.meta.requiresAuth && !token) {
-    next('/login')
-  } else {
-    next()
-  }
-})
-```
-
-### 2.5 API 请求规范
-
-```javascript
-// utils/request.js
-import axios from 'axios'
-
-const request = axios.create({
-  baseURL: '/api',
-  timeout: 10000
-})
-
-// 请求拦截器
-request.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-// 响应拦截器
-request.interceptors.response.use(
-  response => response.data,
-  error => {
-    // 统一错误处理
-    return Promise.reject(error)
-  }
-)
-
-export default request
-```
-
-```javascript
-// api/product.js
-import request from '../utils/request'
-
-// ✅ 正确：使用箭头函数导出
-export const getProducts = (params) => {
-  return request.get('/products', { params })
-}
-
-export const getProductDetail = (id) => {
-  return request.get(`/products/${id}`)
-}
-```
-
-### 2.6 样式规范
-
-```vue
-<style scoped>
-/* 使用 scoped 避免样式污染 */
-
-/* 使用 CSS 变量 */
-.price {
-  color: var(--primary-color);
-}
-
-/* 使用 BEM 命名规范 */
-.product-card {}
-.product-card__title {}
-.product-card__price {}
-.product-card--featured {}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .container {
-    padding: 10px;
-  }
-}
-</style>
-```
-
----
-
-## 3. 后端开发规范
-
-### 3.1 项目结构规范
-
-```
-backend/
-├── src/
-│   ├── models/           # 数据模型
-│   │   ├── User.js
-│   │   ├── Product.js
-│   │   ├── Order.js
-│   │   └── ...
-│   ├── routes/           # 路由
-│   │   ├── auth.js
-│   │   ├── products.js
-│   │   ├── orders.js
-│   │   └── ...
-│   ├── middleware/       # 中间件
-│   │   ├── auth.js       # 认证中间件
-│   │   └── errorHandler.js
-│   ├── config/           # 配置文件
-│   │   └── database.js
-│   ├── utils/            # 工具函数
-│   └── index.js          # 入口文件
-├── .env                  # 环境变量
-└── package.json
-```
-
-### 3.2 Mongoose 模型规范
-
-```javascript
-// models/Product.js
-const mongoose = require('mongoose')
-
-const productSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, '商品名称不能为空'],
-    trim: true
-  },
-  price: {
-    type: Number,
-    required: [true, '价格不能为空'],
-    min: [0, '价格不能为负数']
-  },
-  stock: {
-    type: Number,
-    default: 0,
-    min: [0, '库存不能为负数']
-  }
-}, {
-  timestamps: true,  // 自动添加 createdAt 和 updatedAt
-  versionKey: false  // 禁用 __v 字段
-})
-
-// ✅ 正确：添加索引
-productSchema.index({ name: 'text' })
-productSchema.index({ categoryId: 1 })
-
-module.exports = mongoose.model('Product', productSchema)
-```
-
-### 3.3 路由规范
-
-```javascript
-// routes/products.js
-const express = require('express')
-const router = express.Router()
-const auth = require('../middleware/auth')
-
-// ✅ 正确：RESTful API 设计
-router.get('/', getProducts)           // 获取列表
-router.get('/:id', getProductDetail)   // 获取详情
-router.post('/', auth, createProduct)  // 创建（需要认证）
-router.put('/:id', auth, updateProduct) // 更新
-router.delete('/:id', auth, deleteProduct) // 删除
-
-module.exports = router
-```
-
-### 3.4 错误处理规范
-
-```javascript
-// middleware/errorHandler.js
-module.exports = (err, req, res, next) => {
-  console.error(err.stack)
-  
-  // Mongoose 验证错误
-  if (err.name === 'ValidationError') {
-    return res.status(400).json({
-      success: false,
-      message: Object.values(err.errors).map(e => e.message).join(', ')
-    })
-  }
-  
-  // JWT 错误
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      message: '无效的 token'
-    })
-  }
-  
-  // 默认错误
-  res.status(500).json({
-    success: false,
-    message: err.message || '服务器错误'
-  })
-}
-```
-
-### 3.5 环境变量规范
+## Git 提交规范
 
 ```bash
-# .env
-NODE_ENV=development
-PORT=3001
-MONGODB_URI=mongodb://localhost:27017/mao-mall
-JWT_SECRET=your-secret-key-here
-JWT_EXPIRE=7d
+feat(product): 添加SKU管理功能
+fix(cart): 修复数量更新问题
+docs(readme): 更新部署说明
 ```
 
-```javascript
-// 使用环境变量
-const PORT = process.env.PORT || 3001
-const MONGODB_URI = process.env.MONGODB_URI
-```
+类型：feat, fix, docs, style, refactor, perf, test, chore
+
+## 部署流程
+
+1. 推送代码：`git push`
+2. Vercel 自动部署（1-2分钟）
+3. 更新环境变量需手动 Redeploy
+
+## 参考文档
+
+- Vant 4.x: https://vant-ui.github.io/vant/v4/
+- Element Plus: https://element-plus.org/
+- Mongoose: https://mongoosejs.com/
 
 ---
 
-## 4. 数据库规范
-
-### 4.1 集合命名规范
-
-- 使用复数形式：`users`, `products`, `orders`
-- 使用小写字母和下划线：`order_items`, `product_skus`
-
-### 4.2 字段命名规范
-
-```javascript
-// ✅ 正确：使用驼峰命名
-{
-  userId: ObjectId,
-  productName: String,
-  createdAt: Date
-}
-
-// ❌ 错误：使用下划线
-{
-  user_id: ObjectId,
-  product_name: String,
-  created_at: Date
-}
-```
-
-### 4.3 常用字段规范
-
-```javascript
-// 所有模型都应包含
-{
-  createdAt: Date,    // 创建时间
-  updatedAt: Date     // 更新时间
-}
-
-// 软删除
-{
-  deleteStatus: {
-    type: Number,
-    default: 0  // 0-未删除 1-已删除
-  }
-}
-
-// 状态字段
-{
-  status: {
-    type: Number,
-    default: 0,
-    enum: [0, 1, 2, 3]  // 明确定义可能的值
-  }
-}
-```
-
-### 4.4 关联查询规范
-
-```javascript
-// ✅ 正确：使用 populate
-const order = await Order.findById(id)
-  .populate('userId', 'username email')  // 只选择需要的字段
-  .populate('addressId')
-
-// ❌ 错误：过度使用 populate
-const order = await Order.findById(id)
-  .populate('userId')  // 会返回用户的所有字段，包括密码
-```
-
----
-
-## 5. API 接口规范
-
-### 5.1 RESTful API 设计
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/api/products` | 获取商品列表 |
-| GET | `/api/products/:id` | 获取商品详情 |
-| POST | `/api/products` | 创建商品 |
-| PUT | `/api/products/:id` | 更新商品 |
-| DELETE | `/api/products/:id` | 删除商品 |
-
-### 5.2 响应格式规范
-
-```javascript
-// ✅ 成功响应
-{
-  "success": true,
-  "data": {
-    // 数据内容
-  },
-  "message": "操作成功"
-}
-
-// ❌ 错误响应
-{
-  "success": false,
-  "message": "错误信息",
-  "error": "详细错误"
-}
-```
-
-### 5.3 分页规范
-
-```javascript
-// 请求参数
-{
-  page: 1,      // 页码，从 1 开始
-  pageSize: 10  // 每页数量
-}
-
-// 响应格式
-{
-  "success": true,
-  "data": {
-    "list": [],           // 数据列表
-    "total": 100,         // 总数
-    "page": 1,            // 当前页
-    "pageSize": 10,       // 每页数量
-    "totalPages": 10      // 总页数
-  }
-}
-```
-
-### 5.4 状态码规范
-
-| 状态码 | 说明 |
-|--------|------|
-| 200 | 成功 |
-| 201 | 创建成功 |
-| 400 | 请求参数错误 |
-| 401 | 未授权（未登录） |
-| 403 | 禁止访问（无权限） |
-| 404 | 资源不存在 |
-| 500 | 服务器错误 |
-
----
-
-## 6. 常见问题和解决方案
-
-### 6.1 Vant 组件不显示
-
-**问题：** 使用 `van-goods-action` 组件不显示
-
-**原因：** Vant 4.x 已将 `van-goods-action` 改名为 `van-action-bar`
-
-**解决方案：**
-```vue
-<!-- 使用正确的组件名 -->
-<van-action-bar>
-  <van-action-bar-icon icon="chat-o" text="客服" />
-  <van-action-bar-button type="danger" text="立即购买" />
-</van-action-bar>
-```
-
-### 6.2 Mongoose 索引警告
-
-**问题：** 控制台出现 `DeprecationWarning: collection.ensureIndex is deprecated`
-
-**解决方案：**
-```javascript
-// config/database.js
-mongoose.connect(MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-
-// 在模型中禁用自动索引（生产环境）
-const schema = new mongoose.Schema({}, {
-  autoIndex: false  // 生产环境设置为 false
-})
-```
-
-### 6.3 端口被占用
-
-**问题：** `Error: listen EADDRINUSE: address already in use :::3001`
-
-**解决方案：**
-```bash
-# 查找占用端口的进程
-lsof -ti:3001
-
-# 杀死进程
-kill -9 $(lsof -ti:3001)
-
-# 或者修改端口
-PORT=3002 npm run dev
-```
-
-### 6.4 CORS 跨域问题
-
-**问题：** 前端请求后端 API 出现跨域错误
-
-**解决方案：**
-```javascript
-// backend/src/index.js
-const cors = require('cors')
-
-app.use(cors({
-  origin: 'http://localhost:5173',  // 前端地址
-  credentials: true
-}))
-```
-
-### 6.5 JWT Token 过期
-
-**问题：** Token 过期后用户需要重新登录
-
-**解决方案：**
-```javascript
-// 前端：响应拦截器处理
-request.interceptors.response.use(
-  response => response.data,
-  error => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      router.push('/login')
-    }
-    return Promise.reject(error)
-  }
-)
-```
-
-### 6.6 图片上传问题
-
-**问题：** 图片上传后无法显示
-
-**解决方案：**
-```javascript
-// 使用静态文件服务
-app.use('/uploads', express.static('uploads'))
-
-// 或使用云存储服务（推荐）
-// 阿里云 OSS、腾讯云 COS、七牛云等
-```
-
----
-
-## 7. 开发流程规范
-
-### 7.1 Git 提交规范
-
-```bash
-# 提交信息格式
-<type>(<scope>): <subject>
-
-# 类型
-feat:     新功能
-fix:      修复 bug
-docs:     文档更新
-style:    代码格式调整
-refactor: 重构
-test:     测试相关
-chore:    构建/工具相关
-
-# 示例
-feat(product): 添加商品详情页
-fix(cart): 修复购物车数量更新问题
-docs(readme): 更新安装说明
-```
-
-### 7.2 分支管理规范
-
-```
-main/master  - 生产环境分支
-develop      - 开发分支
-feature/*    - 功能分支
-hotfix/*     - 紧急修复分支
-```
-
-### 7.3 代码审查清单
-
-- [ ] 代码符合项目规范
-- [ ] 没有 console.log 等调试代码
-- [ ] 错误处理完善
-- [ ] 注释清晰
-- [ ] 测试通过
-- [ ] 没有安全隐患
-
----
-
-## 8. 性能优化建议
-
-### 8.1 前端优化
-
-1. **路由懒加载**
-```javascript
-const routes = [
-  {
-    path: '/product/:id',
-    component: () => import('../views/ProductDetail.vue')
-  }
-]
-```
-
-2. **图片懒加载**
-```vue
-<van-image lazy-load :src="imageUrl" />
-```
-
-3. **防抖和节流**
-```javascript
-import { debounce } from 'lodash-es'
-
-const handleSearch = debounce((keyword) => {
-  // 搜索逻辑
-}, 300)
-```
-
-### 8.2 后端优化
-
-1. **数据库索引**
-```javascript
-productSchema.index({ name: 'text' })
-productSchema.index({ categoryId: 1, status: 1 })
-```
-
-2. **查询优化**
-```javascript
-// 只选择需要的字段
-Product.find().select('name price pic')
-
-// 使用 lean() 返回普通对象
-Product.find().lean()
-```
-
-3. **缓存策略**
-```javascript
-// 使用 Redis 缓存热点数据
-const cachedData = await redis.get(key)
-if (cachedData) {
-  return JSON.parse(cachedData)
-}
-```
-
----
-
-## 9. 安全规范
-
-### 9.1 密码安全
-
-```javascript
-// ✅ 正确：使用 bcrypt 加密
-const bcrypt = require('bcryptjs')
-const hashedPassword = await bcrypt.hash(password, 10)
-
-// ❌ 错误：明文存储密码
-user.password = password
-```
-
-### 9.2 SQL/NoSQL 注入防护
-
-```javascript
-// ✅ 正确：使用 Mongoose 查询
-Product.findById(id)
-
-// ❌ 错误：直接拼接查询
-db.collection.find({ _id: req.params.id })
-```
-
-### 9.3 XSS 防护
-
-```javascript
-// 前端：使用 v-text 而不是 v-html
-<div v-text="userInput"></div>
-
-// 后端：对用户输入进行转义
-const xss = require('xss')
-const cleanInput = xss(userInput)
-```
-
----
-
-## 10. 测试规范
-
-### 10.1 单元测试
-
-```javascript
-// 使用 Jest 或 Vitest
-describe('Product API', () => {
-  test('should get product list', async () => {
-    const res = await request(app).get('/api/products')
-    expect(res.status).toBe(200)
-    expect(res.body.success).toBe(true)
-  })
-})
-```
-
-### 10.2 API 测试
-
-使用 Postman 或 Apifox 创建测试集合，包含：
-- 正常请求测试
-- 异常请求测试
-- 边界值测试
-- 权限测试
-
----
-
-## 附录：快速参考
-
-### 常用命令
-
-```bash
-# 前端
-npm run dev          # 启动开发服务器
-npm run build        # 构建生产版本
-npm run preview      # 预览生产版本
-
-# 后端
-npm run dev          # 启动开发服务器（nodemon）
-npm start            # 启动生产服务器
-
-# 数据库
-mongod               # 启动 MongoDB
-mongo                # 连接 MongoDB
-```
-
-### 常用端口
-
-- 前端开发服务器：5173
-- 后端 API 服务器：3001
-- MongoDB 数据库：27017
-
----
-
-**文档维护者：** 开发团队  
-**最后更新：** 2026-03-06  
-**版本：** v1.0.0
+**版本：** v2.0.0  
+**更新：** 2026-03-14

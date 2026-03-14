@@ -36,8 +36,41 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// 连接数据库
-connectDB();
+// 全局错误处理中间件
+app.use((err, req, res, next) => {
+  console.error('全局错误:', err);
+  res.status(500).json({ 
+    code: 500, 
+    message: err.message || '服务器内部错误',
+    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
+
+// 数据库连接（异步处理）
+let dbConnected = false;
+connectDB()
+  .then(() => {
+    dbConnected = true;
+  })
+  .catch(err => {
+    console.error('数据库连接失败:', err);
+  });
+
+// 数据库连接检查中间件
+app.use(async (req, res, next) => {
+  if (!dbConnected) {
+    try {
+      await connectDB();
+      dbConnected = true;
+    } catch (error) {
+      return res.status(503).json({ 
+        code: 503, 
+        message: '数据库连接失败，请稍后重试' 
+      });
+    }
+  }
+  next();
+});
 
 // 路由
 app.use('/api/auth', authRoutes);
@@ -55,7 +88,19 @@ app.use('/api/categories', categoryRoutes);
 
 // 健康检查
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: '猫商城 API 运行中 (MongoDB)' });
+  res.json({ 
+    status: 'ok', 
+    message: '猫商城 API 运行中 (MongoDB)',
+    dbConnected 
+  });
+});
+
+// 404 处理
+app.use((req, res) => {
+  res.status(404).json({ 
+    code: 404, 
+    message: '接口不存在' 
+  });
 });
 
 // 本地开发时启动监听；Vercel Serverless 环境下导出 app
