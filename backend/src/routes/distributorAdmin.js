@@ -131,7 +131,6 @@ router.get('/commissions', async (req, res) => {
     const [list, total] = await Promise.all([
       ProductCommission.find(query)
         .populate('productId', 'name pic price')
-        .populate('skuId', 'name')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)

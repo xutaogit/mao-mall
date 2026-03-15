@@ -2,6 +2,10 @@ import express from 'express';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import CartItem from '../models/CartItem.js';
+import DistributionOrder from '../models/DistributionOrder.js';
+import DistributionRelation from '../models/DistributionRelation.js';
+import ProductCommission from '../models/ProductCommission.js';
+import Distributor from '../models/Distributor.js';
 import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -262,6 +266,9 @@ router.post('/:id/confirm', authMiddleware, async (req, res) => {
     order.receiveTime = new Date();
     await order.save();
 
+    // 🎯 生成分销佣金
+    await createDistributionCommission(order);
+
     res.json({
       code: 200,
       message: '确认收货成功',
@@ -272,6 +279,78 @@ router.post('/:id/confirm', authMiddleware, async (req, res) => {
     res.status(500).json({ code: 500, message: error.message });
   }
 });
+
+// 生成分销佣金的函数
+async function createDistributionCommission(order) {
+  try {
+    // 1. 查找有效的分销关系
+    const relation = await DistributionRelation.findOne({
+      customerId: order.memberId,
+      expireTime: { $gt: new Date() }
+    });
+
+    if (!relation) {
+      console.log(`订单 ${order.orderSn} 没有有效的分销关系`);
+      return;
+    }
+
+    let totalCommissionAmount = 0;
+
+    // 2. 对每个订单商品生成佣金
+    for (const item of order.orderItems) {
+      // 查询商品佣金配置
+      const commission = await ProductCommission.findOne({
+        productId: item.productId,
+        skuId: null,
+        enabled: true
+      });
+
+      if (!commission) {
+        console.log(`商品 ${item.productName} 没有设置佣金`);
+        continue;
+      }
+
+      // 3. 计算佣金金额
+      let commissionAmount = 0;
+      if (commission.commissionType === 0) {
+        // 固定金额
+        commissionAmount = commission.commissionValue * item.productQuantity;
+      } else {
+        // 百分比
+        const itemTotal = item.productPrice * item.productQuantity;
+        commissionAmount = itemTotal * commission.commissionValue / 100;
+      }
+
+      totalCommissionAmount += commissionAmount;
+
+      // 4. 创建分销订单
+      const distributionOrder = new DistributionOrder({
+        orderId: order._id,
+        orderSn: order.orderSn,
+        distributorId: relation.distributorId,
+        customerId: order.memberId,
+        productId: item.productId,
+        orderAmount: item.productPrice * item.productQuantity,
+        commissionAmount,
+        commissionType: commission.commissionType,
+        settlementStatus: 0
+      });
+
+      await distributionOrder.save();
+      console.log(`✅ 分销佣金生成: 订单${order.orderSn}, 商品${item.productName}, 佣金¥${commissionAmount.toFixed(2)}`);
+    }
+
+    // 5. 更新分销员统计数据
+    await Distributor.findByIdAndUpdate(relation.distributorId, {
+      $inc: {
+        totalOrders: 1,
+        totalCommission: totalCommissionAmount
+      }
+    });
+  } catch (error) {
+    console.error('生成分销佣金失败:', error);
+  }
+}
 
 // 订单发货（管理员）
 router.post('/:id/delivery', async (req, res) => {

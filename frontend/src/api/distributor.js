@@ -24,3 +24,9 @@ export const getDistributorOrders = (params) => {
 export const bindDistributor = (data) => {
   return request.post('/distributor/bind', data)
 }
+
+// 获取商品佣金信息
+export const getProductCommission = (productId) => {
+  return request.get(`/distributor/product/${productId}/commission`)
+}
+

@@ -13,6 +13,8 @@ import refundRoutes from './routes/refund.js';
 import paymentRoutes from './routes/payment.js';
 import distributorRoutes from './routes/distributor.js';
 import distributorAdminRoutes from './routes/distributorAdmin.js';
+import withdrawalRoutes from './routes/withdrawals.js';
+import settlementRoutes from './routes/settlement.js';
 import couponRoutes from './routes/coupon.js';
 
 dotenv.config();
@@ -82,6 +84,8 @@ app.use('/api/coupon', couponRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/distributor', distributorRoutes);
 app.use('/api/admin/distributor', distributorAdminRoutes);
+app.use('/api/withdrawal', withdrawalRoutes);
+app.use('/api/admin/settlement', settlementRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/categories', categoryRoutes);

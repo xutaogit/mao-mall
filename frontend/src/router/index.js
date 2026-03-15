@@ -108,9 +108,27 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/distributor/center',
-    name: 'DistributorCenter',
-    component: () => import('../views/DistributorCenter.vue'),
+    path: '/distribution-center',
+    name: 'DistributionCenter',
+    component: () => import('../views/DistributionCenter.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/withdrawal',
+    name: 'Withdrawal',
+    component: () => import('../views/Withdrawal.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/my-favorites',
+    name: 'MyFavorites',
+    component: () => import('../views/MyFavorites.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('../views/Settings.vue'),
     meta: { requiresAuth: true }
   }
 ]

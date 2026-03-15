@@ -49,6 +49,12 @@ const routes = [
         name: 'Coupons',
         component: () => import('../views/Coupons.vue'),
         meta: { title: '优惠券管理' }
+      },
+      {
+        path: 'distributors',
+        name: 'Distributors',
+        component: () => import('../views/Distributors.vue'),
+        meta: { title: '分销管理' }
       }
     ]
   }

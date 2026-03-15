@@ -2,6 +2,7 @@ import express from 'express';
 import Distributor from '../models/Distributor.js';
 import DistributionRelation from '../models/DistributionRelation.js';
 import DistributionOrder from '../models/DistributionOrder.js';
+import ProductCommission from '../models/ProductCommission.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -209,6 +210,37 @@ router.post('/bind', authMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error('绑定分销关系失败:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 获取商品佣金信息（供前端展示）
+router.get('/product/:productId/commission', async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    // 查询商品佣金配置
+    const commission = await ProductCommission.findOne({
+      productId,
+      skuId: null, // 整个商品的佣金
+      enabled: true
+    });
+
+    if (!commission) {
+      return res.json({
+        success: true,
+        data: null
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        commissionType: commission.commissionType,
+        commissionValue: commission.commissionValue
+      }
+    });
+  } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 });

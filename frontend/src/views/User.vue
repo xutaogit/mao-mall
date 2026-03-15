@@ -48,21 +48,21 @@
       <van-cell title="退款/售后" is-link to="/refunds" icon="after-sale" />
       <van-cell title="我的优惠券" is-link to="/my-coupons" icon="coupon-o" />
       <van-cell title="收货地址" is-link to="/addresses" icon="location-o" />
-      <van-cell title="我的收藏" is-link icon="star-o" />
+      <van-cell title="我的收藏" is-link to="/my-favorites" icon="star-o" />
     </van-cell-group>
 
     <van-cell-group class="menu-group">
       <van-cell 
         :title="distributorStatus === 1 ? '分销中心' : distributorStatus === 0 ? '分销申请审核中' : '成为分销员'" 
         is-link 
-        :to="distributorStatus === 1 ? '/distributor/center' : '/distributor/apply'"
+        :to="distributorStatus === 1 ? '/distribution-center' : '/distributor/apply'"
         icon="gold-coin-o"
         :label="distributorStatus === 1 ? '推广商品赚取佣金' : ''"
       />
     </van-cell-group>
 
     <van-cell-group class="menu-group">
-      <van-cell title="设置" is-link icon="setting-o" />
+      <van-cell title="设置" is-link to="/settings" icon="setting-o" />
       <van-cell v-if="isLoggedIn" title="退出登录" icon="logout" @click="handleLogout" />
     </van-cell-group>
 

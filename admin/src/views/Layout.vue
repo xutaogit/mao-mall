@@ -32,6 +32,10 @@
           <el-icon><Ticket /></el-icon>
           <span>优惠券管理</span>
         </el-menu-item>
+        <el-menu-item index="/distributors">
+          <el-icon><Share /></el-icon>
+          <span>分销管理</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     

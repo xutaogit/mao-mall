@@ -45,6 +45,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { login } from '../api/auth'
+import { bindDistributor } from '../api/distributor'
 
 const router = useRouter()
 const loading = ref(false)
@@ -68,6 +69,18 @@ const onSubmit = async () => {
     localStorage.setItem('userInfo', JSON.stringify(res.data.user))
     
     showToast('登录成功')
+    
+    // 检查是否有待绑定的分销员代码
+    const pendingDistributorCode = localStorage.getItem('pendingDistributorCode')
+    if (pendingDistributorCode) {
+      try {
+        await bindDistributor({ distributorCode: pendingDistributorCode })
+        localStorage.removeItem('pendingDistributorCode')
+        console.log('分销关系绑定成功')
+      } catch (error) {
+        console.error('绑定分销关系失败:', error)
+      }
+    }
     
     // 跳转到个人中心或返回上一页
     setTimeout(() => {
