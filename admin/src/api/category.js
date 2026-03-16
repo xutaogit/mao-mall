@@ -9,3 +9,8 @@ export const getCategories = (params) => {
 export const getCategory = (id) => {
   return request.get(`/categories/${id}`)
 }
+
+// 更新分类
+export const updateCategory = (id, data) => {
+  return request.put(`/categories/${id}`, data)
+}

@@ -1,73 +1,88 @@
 <template>
   <div class="coupons-container">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>优惠券管理</span>
-          <el-button type="primary" @click="handleAdd">
-            <el-icon><Plus /></el-icon>
-            添加优惠券
-          </el-button>
-        </div>
-      </template>
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">优惠券管理</h1>
+        <p class="page-subtitle">创建和管理营销活动优惠券</p>
+      </div>
+      <el-button type="primary" size="large" @click="handleAdd" class="add-btn">
+        <el-icon><Plus /></el-icon>
+        新增优惠券
+      </el-button>
+    </div>
 
-      <!-- 搜索栏 -->
-      <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="优惠券名称">
-          <el-input v-model="searchForm.name" placeholder="请输入优惠券名称" clearable />
-        </el-form-item>
-        <el-form-item label="类型">
-          <el-select v-model="searchForm.type" placeholder="请选择类型" clearable style="width: 150px">
-            <el-option label="满减券" :value="0" />
-            <el-option label="折扣券" :value="1" />
-            <el-option label="无门槛券" :value="2" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+    <!-- 搜索和筛选 -->
+    <div class="search-section">
+      <el-input
+        v-model="searchForm.name"
+        placeholder="搜索优惠券名称..."
+        clearable
+        class="search-input"
+        @keyup.enter="handleSearch"
+      />
+      <el-select v-model="searchForm.type" placeholder="优惠券类型" class="filter-select" clearable>
+        <el-option label="满减券" :value="0" />
+        <el-option label="折扣券" :value="1" />
+        <el-option label="无门槛券" :value="2" />
+      </el-select>
+      <el-button @click="handleSearch" class="search-btn">
+        <el-icon><Search /></el-icon>
+        搜索
+      </el-button>
+      <el-button @click="handleReset" class="reset-btn">重置</el-button>
+    </div>
 
-      <!-- 优惠券表格 -->
-      <el-table :data="tableData" border style="width: 100%" v-loading="loading">
-        <el-table-column prop="name" label="优惠券名称" width="200" />
+    <!-- 优惠券表格 -->
+    <div class="table-wrapper">
+      <el-table :data="tableData" style="width: 100%" v-loading="loading" stripe class="coupons-table">
+        <el-table-column prop="name" label="优惠券名称" min-width="180">
+          <template #default="{ row }">
+            <div class="coupon-name">{{ row.name }}</div>
+          </template>
+        </el-table-column>
         <el-table-column prop="type" label="类型" width="100">
           <template #default="{ row }">
-            <el-tag v-if="row.type === 0" type="danger">满减券</el-tag>
-            <el-tag v-else-if="row.type === 1" type="warning">折扣券</el-tag>
-            <el-tag v-else type="success">无门槛券</el-tag>
+            <el-tag v-if="row.type === 0" type="danger" effect="light">满减券</el-tag>
+            <el-tag v-else-if="row.type === 1" type="warning" effect="light">折扣券</el-tag>
+            <el-tag v-else type="success" effect="light">无门槛券</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="amount" label="优惠额度" width="120">
           <template #default="{ row }">
-            <span v-if="row.type === 1">{{ (row.amount * 10).toFixed(1) }}折</span>
-            <span v-else>¥{{ row.amount }}</span>
+            <span class="amount" v-if="row.type === 1">{{ (row.amount * 10).toFixed(1) }}折</span>
+            <span class="amount" v-else>¥{{ row.amount }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="minPoint" label="使用门槛" width="120">
           <template #default="{ row }">
             <span v-if="row.minPoint > 0">满¥{{ row.minPoint }}</span>
-            <span v-else>无门槛</span>
+            <span v-else class="no-threshold">无门槛</span>
           </template>
         </el-table-column>
         <el-table-column prop="count" label="发放数量" width="100" />
         <el-table-column prop="receiveCount" label="已领取" width="100" />
         <el-table-column prop="useCount" label="已使用" width="100" />
-        <el-table-column label="有效期" width="200">
+        <el-table-column label="有效期" width="180">
           <template #default="{ row }">
-            {{ formatDate(row.startTime) }} ~ {{ formatDate(row.endTime) }}
+            <span class="date-range">{{ formatDate(row.startTime) }} ~ {{ formatDate(row.endTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="160" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-            <el-button type="danger" size="small" @click="handleDelete(row)">删除</el-button>
+            <el-button type="primary" link size="small" @click="handleEdit(row)">
+              <el-icon><Edit /></el-icon>编辑
+            </el-button>
+            <el-button type="danger" link size="small" @click="handleDelete(row)">
+              <el-icon><Delete /></el-icon>删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
+    </div>
 
-      <!-- 分页 -->
+    <!-- 分页 -->
+    <div class="pagination-wrapper">
       <el-pagination
         v-model:current-page="pagination.page"
         v-model:page-size="pagination.pageSize"
@@ -76,9 +91,8 @@
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="loadCoupons"
         @current-change="loadCoupons"
-        style="margin-top: 20px; justify-content: flex-end"
       />
-    </el-card>
+    </div>
 
     <!-- 编辑对话框 -->
     <el-dialog
@@ -86,6 +100,7 @@
       :title="dialogTitle"
       width="600px"
       @close="handleDialogClose"
+      class="coupon-dialog"
     >
       <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
         <el-form-item label="优惠券名称" prop="name">
@@ -153,7 +168,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Search, Edit, Delete } from '@element-plus/icons-vue'
 import { getCoupons, createCoupon, updateCoupon, deleteCoupon } from '../api/coupon'
 
 const loading = ref(false)
@@ -307,16 +322,178 @@ onMounted(() => {
 
 <style scoped>
 .coupons-container {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.card-header {
+.page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.search-form {
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+}
+
+.add-btn {
+  background-color: #0066ff;
+  border-color: #0066ff;
+  border-radius: 6px;
+  padding: 10px 24px;
+  font-weight: 500;
+}
+
+.add-btn:hover {
+  background-color: #0052cc;
+  border-color: #0052cc;
+}
+
+.search-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+}
+
+.search-input {
+  flex: 1;
+  max-width: 300px;
+}
+
+:deep(.search-input .el-input__wrapper) {
+  background-color: #f5f7fa;
+  border: 1px solid #e8eaed;
+}
+
+.filter-select {
+  width: 140px;
+}
+
+:deep(.filter-select .el-input__wrapper) {
+  background-color: #f5f7fa;
+  border: 1px solid #e8eaed;
+}
+
+.search-btn {
+  background-color: #0066ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+}
+
+.search-btn:hover {
+  background-color: #0052cc;
+}
+
+.reset-btn {
+  background-color: #f5f7fa;
+  color: #666;
+  border: 1px solid #e8eaed;
+  border-radius: 6px;
+}
+
+.reset-btn:hover {
+  background-color: #e8eaed;
+}
+
+.table-wrapper {
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+  overflow: hidden;
+}
+
+.coupons-table {
+  border: none;
+}
+
+:deep(.coupons-table .el-table__header th) {
+  background-color: #f5f7fa;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #e8eaed;
+}
+
+:deep(.coupons-table .el-table__body tr) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(.coupons-table .el-table__body tr:hover > td) {
+  background-color: #f9fafb;
+}
+
+.coupon-name {
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.amount {
+  font-weight: 600;
+  color: #ff6b35;
+  font-size: 15px;
+}
+
+.no-threshold {
+  color: #52c41a;
+}
+
+.date-range {
+  font-size: 13px;
+  color: #666;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+}
+
+:deep(.el-pagination) {
+  gap: 8px;
+}
+
+:deep(.el-pagination .btn-prev,
+.el-pagination .btn-next,
+.el-pagination .el-pager li) {
+  border-radius: 4px;
+  border: 1px solid #e8eaed;
+}
+
+:deep(.el-pagination .btn-prev:hover,
+.el-pagination .btn-next:hover,
+.el-pagination .el-pager li:hover) {
+  color: #0066ff;
+  border-color: #0066ff;
+}
+
+:deep(.el-pagination .el-pager li.active) {
+  color: #fff;
+  background-color: #0066ff;
+  border-color: #0066ff;
+}
+
+:deep(.coupon-dialog .el-form-item) {
   margin-bottom: 20px;
+}
+
+:deep(.coupon-dialog .el-dialog__body) {
+  padding: 24px;
 }
 </style>

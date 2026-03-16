@@ -41,7 +41,7 @@
       <van-checkbox v-model="checkAll" @click="handleCheckAll">全选</van-checkbox>
     </van-submit-bar>
 
-    <van-tabbar v-model="active" route>
+    <van-tabbar v-model="active" route active-color="#e63946">
       <van-tabbar-item icon="home-o" to="/">首页</van-tabbar-item>
       <van-tabbar-item icon="apps-o" to="/category">分类</van-tabbar-item>
       <van-tabbar-item icon="shopping-cart-o" to="/cart">购物车</van-tabbar-item>
@@ -162,7 +162,7 @@ onMounted(() => {
 
 <style scoped>
 .cart {
-  background: #f7f8fa;
+  background: #f5f5f5;
   min-height: 100vh;
   padding-bottom: 100px;
 }
@@ -174,18 +174,19 @@ onMounted(() => {
 .cart-item {
   display: flex;
   align-items: center;
-  padding: 15px;
+  padding: 12px 15px;
   background: white;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   gap: 12px;
 }
 
 .product-image {
   width: 80px;
   height: 80px;
-  border-radius: 8px;
+  border-radius: 12px;
   object-fit: cover;
   cursor: pointer;
+  background: #f0f0f0;
 }
 
 .product-info {
@@ -197,8 +198,9 @@ onMounted(() => {
 }
 
 .product-name {
-  font-size: 14px;
-  color: #323233;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -213,8 +215,32 @@ onMounted(() => {
 }
 
 .price {
-  font-size: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e63946;
+}
+
+.cart-item :deep(.van-checkbox) {
+  margin-right: 8px;
+}
+
+.cart-item :deep(.van-stepper) {
+  transform: scale(0.9);
+}
+
+/* 提交栏 */
+:deep(.van-submit-bar) {
+  background: white;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+}
+
+:deep(.van-submit-bar__button) {
+  background: #e63946;
+  border: none;
+}
+
+:deep(.van-submit-bar__text) {
+  color: #e63946;
   font-weight: 600;
-  color: var(--primary-color);
 }
 </style>

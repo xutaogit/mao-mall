@@ -1,16 +1,18 @@
 <template>
   <el-container class="layout">
-    <el-aside width="200px">
+    <el-aside width="267px" class="sidebar">
       <div class="logo">
-        <h2>🐱 猫商城</h2>
-        <p>后台管理系统</p>
+        <div class="logo-icon">🏪</div>
+        <h2>商城后台</h2>
       </div>
       <el-menu
         :default-active="$route.path"
         router
-        background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409eff"
+        background-color="#1a1f2e"
+        text-color="#a0a9b8"
+        active-text-color="#fff"
+        active-background-color="#0066ff"
+        class="sidebar-menu"
       >
         <el-menu-item index="/products">
           <el-icon><Goods /></el-icon>
@@ -39,30 +41,35 @@
       </el-menu>
     </el-aside>
     
-    <el-container>
-      <el-header>
-        <div class="header-content">
-          <h3>{{ $route.meta.title }}</h3>
-          <div class="user-info">
-            <el-dropdown @command="handleCommand">
-              <span class="user-trigger">
-                <el-icon><User /></el-icon>
-                <span>{{ adminUser.username || '管理员' }}</span>
-                <el-icon><ArrowDown /></el-icon>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="logout">
-                    <el-icon><SwitchButton /></el-icon>退出登录
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
+    <el-container class="main-container">
+      <el-header class="top-header">
+        <div class="header-left">
+          <span class="breadcrumb">首页 / {{ $route.meta.title }}</span>
+        </div>
+        <div class="header-right">
+          <el-input
+            v-model="searchQuery"
+            placeholder="搜索..."
+            class="search-input"
+            :prefix-icon="Search"
+          />
+          <el-icon class="notification-icon"><Bell /></el-icon>
+          <el-dropdown @command="handleCommand" class="user-dropdown">
+            <div class="user-avatar">
+              <span class="avatar-text">{{ adminUser.username?.charAt(0) || '管' }}</span>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="logout">
+                  <el-icon><SwitchButton /></el-icon>退出登录
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </el-header>
       
-      <el-main>
+      <el-main class="main-content">
         <router-view />
       </el-main>
     </el-container>
@@ -70,11 +77,13 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import { Search, Bell, SwitchButton, Goods, Menu, Document, RefreshLeft, Ticket, Share } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const searchQuery = ref('')
 
 const adminUser = computed(() => {
   try {
@@ -106,54 +115,140 @@ const handleCommand = async (command) => {
 <style scoped>
 .layout {
   height: 100vh;
+  background-color: #f5f7fa;
 }
 
-.el-aside {
-  background-color: #304156;
-  color: #fff;
+.sidebar {
+  background-color: #1a1f2e;
+  border-right: 1px solid #2a3142;
+  overflow-y: auto;
 }
 
 .logo {
-  padding: 20px;
+  padding: 24px 16px;
   text-align: center;
-  border-bottom: 1px solid #1f2d3d;
+  border-bottom: 1px solid #2a3142;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 28px;
 }
 
 .logo h2 {
   color: #fff;
-  font-size: 20px;
-  margin-bottom: 5px;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
 }
 
-.logo p {
-  color: #bfcbd9;
-  font-size: 12px;
+.sidebar-menu {
+  border: none;
+  padding: 12px 0;
 }
 
-.el-header {
+:deep(.sidebar-menu .el-menu-item) {
+  margin: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+:deep(.sidebar-menu .el-menu-item:hover) {
+  background-color: #252d3d !important;
+}
+
+:deep(.sidebar-menu .el-menu-item.is-active) {
+  background-color: #0066ff !important;
+  border-radius: 6px;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-header {
   background-color: #fff;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e8eaed;
   display: flex;
   align-items: center;
-  padding: 0 20px;
-}
-
-.header-content {
-  width: 100%;
-  display: flex;
   justify-content: space-between;
-  align-items: center;
+  padding: 0 32px;
+  height: 64px;
 }
 
-.user-info {
+.header-left {
+  flex: 1;
+}
+
+.breadcrumb {
+  color: #666;
+  font-size: 14px;
+}
+
+.header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 24px;
+}
+
+.search-input {
+  width: 200px;
+}
+
+:deep(.search-input .el-input__wrapper) {
+  background-color: #f5f7fa;
+  border: 1px solid #e8eaed;
+}
+
+.notification-icon {
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.notification-icon:hover {
+  color: #0066ff;
+}
+
+.user-dropdown {
   cursor: pointer;
 }
 
-.el-main {
-  background-color: #f0f2f5;
-  padding: 20px;
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.user-avatar:hover {
+  transform: scale(1.05);
+}
+
+.avatar-text {
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  background-color: #f5f7fa;
+}
+
+:deep(.el-scrollbar__wrap) {
+  overflow-x: hidden;
 }
 </style>

@@ -1,5 +1,6 @@
 import express from 'express';
 import Product from '../models/Product.js';
+import ProductCommission from '../models/ProductCommission.js';
 
 const router = express.Router();
 
@@ -90,11 +91,27 @@ router.get('/', async (req, res) => {
       Product.countDocuments(query)
     ]);
 
+    // 为每个商品添加佣金信息
+    const listWithCommission = await Promise.all(
+      list.map(async (product) => {
+        const commission = await ProductCommission.findOne({
+          productId: product._id,
+          skuId: null,
+          enabled: true
+        }).lean();
+        
+        return {
+          ...product,
+          hasCommission: !!commission
+        };
+      })
+    );
+
     res.json({
       code: 200,
       message: '成功',
       data: {
-        list,
+        list: listWithCommission,
         total,
         pageNum: parseInt(page),
         pageSize: limit,
@@ -118,8 +135,18 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ code: 404, message: '商品不存在' });
     }
 
+    // 查询佣金信息
+    const commission = await ProductCommission.findOne({
+      productId: product._id,
+      skuId: null,
+      enabled: true
+    }).lean();
+
+    const productData = product.toObject();
+    productData.hasCommission = !!commission;
+
     console.log('商品查询成功:', product.name);
-    res.json({ code: 200, message: '成功', data: product });
+    res.json({ code: 200, message: '成功', data: productData });
   } catch (error) {
     console.error('获取商品详情错误:', error.message);
     res.status(500).json({ code: 500, message: error.message });

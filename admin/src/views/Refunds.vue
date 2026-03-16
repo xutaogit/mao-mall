@@ -1,54 +1,63 @@
 <template>
   <div class="refunds-container">
-    <el-card>
-      <template #header>
-        <div class="card-header">
-          <span>退款管理</span>
-        </div>
-      </template>
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">退款管理</h1>
+        <p class="page-subtitle">处理用户退款申请和售后</p>
+      </div>
+    </div>
 
-      <!-- 搜索栏 -->
-      <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="退款单号">
-          <el-input v-model="searchForm.refundSn" placeholder="请输入退款单号" clearable />
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="请选择状态" clearable style="width: 150px">
-            <el-option label="待审核" :value="0" />
-            <el-option label="审核通过" :value="1" />
-            <el-option label="审核拒绝" :value="2" />
-            <el-option label="已完成" :value="3" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+    <!-- 搜索和筛选 -->
+    <div class="search-section">
+      <el-input
+        v-model="searchForm.refundSn"
+        placeholder="搜索退款单号..."
+        clearable
+        class="search-input"
+        @keyup.enter="handleSearch"
+      />
+      <el-select v-model="searchForm.status" placeholder="退款状态" class="filter-select" clearable>
+        <el-option label="待审核" :value="0" />
+        <el-option label="审核通过" :value="1" />
+        <el-option label="审核拒绝" :value="2" />
+        <el-option label="已完成" :value="3" />
+      </el-select>
+      <el-button @click="handleSearch" class="search-btn">
+        <el-icon><Search /></el-icon>
+        搜索
+      </el-button>
+      <el-button @click="handleReset" class="reset-btn">重置</el-button>
+    </div>
 
-      <!-- 退款表格 -->
-      <el-table :data="tableData" border style="width: 100%" v-loading="loading">
-        <el-table-column prop="refundSn" label="退款单号" width="180" />
+    <!-- 退款表格 -->
+    <div class="table-wrapper">
+      <el-table :data="tableData" style="width: 100%" v-loading="loading" stripe class="refunds-table">
+        <el-table-column prop="refundSn" label="退款单号" width="180">
+          <template #default="{ row }">
+            <span class="refund-sn">{{ row.refundSn }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="orderId.orderSn" label="订单号" width="180" />
         <el-table-column prop="refundAmount" label="退款金额" width="120">
           <template #default="{ row }">
-            ¥{{ row.refundAmount }}
+            <span class="amount">¥{{ row.refundAmount }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="refundType" label="退款类型" width="120">
           <template #default="{ row }">
-            <el-tag v-if="row.refundType === 0" type="info">仅退款</el-tag>
-            <el-tag v-else-if="row.refundType === 1" type="warning">退货退款</el-tag>
-            <el-tag v-else type="success">换货</el-tag>
+            <el-tag v-if="row.refundType === 0" type="info" effect="light">仅退款</el-tag>
+            <el-tag v-else-if="row.refundType === 1" type="warning" effect="light">退货退款</el-tag>
+            <el-tag v-else type="success" effect="light">换货</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="reason" label="退款原因" width="150" show-overflow-tooltip />
-        <el-table-column prop="status" label="状态" width="100">
+        <el-table-column prop="status" label="状态" width="110">
           <template #default="{ row }">
-            <el-tag v-if="row.status === 0" type="warning">待审核</el-tag>
-            <el-tag v-else-if="row.status === 1" type="success">审核通过</el-tag>
-            <el-tag v-else-if="row.status === 2" type="danger">审核拒绝</el-tag>
-            <el-tag v-else type="info">已完成</el-tag>
+            <el-tag v-if="row.status === 0" type="warning" effect="light">待审核</el-tag>
+            <el-tag v-else-if="row.status === 1" type="success" effect="light">审核通过</el-tag>
+            <el-tag v-else-if="row.status === 2" type="danger" effect="light">审核拒绝</el-tag>
+            <el-tag v-else type="info" effect="light">已完成</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createdAt" label="申请时间" width="160">
@@ -56,30 +65,36 @@
             {{ formatDate(row.createdAt) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" @click="handleView(row)">查看</el-button>
+            <el-button type="primary" link size="small" @click="handleView(row)">
+              <el-icon><View /></el-icon>查看
+            </el-button>
             <el-button
               v-if="row.status === 0"
               type="success"
+              link
               size="small"
               @click="handleReview(row, 1)"
             >
-              通过
+              <el-icon><SuccessFilled /></el-icon>通过
             </el-button>
             <el-button
               v-if="row.status === 0"
               type="danger"
+              link
               size="small"
               @click="handleReview(row, 2)"
             >
-              拒绝
+              <el-icon><Close /></el-icon>拒绝
             </el-button>
           </template>
         </el-table-column>
       </el-table>
+    </div>
 
-      <!-- 分页 -->
+    <!-- 分页 -->
+    <div class="pagination-wrapper">
       <el-pagination
         v-model:current-page="pagination.page"
         v-model:page-size="pagination.pageSize"
@@ -88,12 +103,11 @@
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="loadRefunds"
         @current-change="loadRefunds"
-        style="margin-top: 20px; justify-content: flex-end"
       />
-    </el-card>
+    </div>
 
     <!-- 详情对话框 -->
-    <el-dialog v-model="detailVisible" title="退款详情" width="600px">
+    <el-dialog v-model="detailVisible" title="退款详情" width="600px" class="detail-dialog">
       <el-descriptions :column="1" border v-if="currentRefund">
         <el-descriptions-item label="退款单号">{{ currentRefund.refundSn }}</el-descriptions-item>
         <el-descriptions-item label="订单号">{{ currentRefund.orderId?.orderSn }}</el-descriptions-item>
@@ -117,10 +131,10 @@
           <span v-else>-</span>
         </el-descriptions-item>
         <el-descriptions-item label="状态">
-          <el-tag v-if="currentRefund.status === 0" type="warning">待审核</el-tag>
-          <el-tag v-else-if="currentRefund.status === 1" type="success">审核通过</el-tag>
-          <el-tag v-else-if="currentRefund.status === 2" type="danger">审核拒绝</el-tag>
-          <el-tag v-else type="info">已完成</el-tag>
+          <el-tag v-if="currentRefund.status === 0" type="warning" effect="light">待审核</el-tag>
+          <el-tag v-else-if="currentRefund.status === 1" type="success" effect="light">审核通过</el-tag>
+          <el-tag v-else-if="currentRefund.status === 2" type="danger" effect="light">审核拒绝</el-tag>
+          <el-tag v-else type="info" effect="light">已完成</el-tag>
         </el-descriptions-item>
         <el-descriptions-item label="处理备注" v-if="currentRefund.handleNote">
           {{ currentRefund.handleNote }}
@@ -133,7 +147,7 @@
     </el-dialog>
 
     <!-- 审核对话框 -->
-    <el-dialog v-model="reviewVisible" title="审核退款" width="500px">
+    <el-dialog v-model="reviewVisible" title="审核退款" width="500px" class="review-dialog">
       <el-form :model="reviewForm" label-width="100px">
         <el-form-item label="审核结果">
           <el-radio-group v-model="reviewForm.status">
@@ -160,7 +174,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
+import { Search, View, SuccessFilled, Close } from '@element-plus/icons-vue'
 import { getRefunds, reviewRefund } from '../api/refund'
 
 const loading = ref(false)
@@ -255,21 +270,162 @@ onMounted(() => {
 
 <style scoped>
 .refunds-container {
-  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.card-header {
+.page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.search-form {
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
+}
+
+.search-section {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+}
+
+.search-input {
+  flex: 1;
+  max-width: 300px;
+}
+
+:deep(.search-input .el-input__wrapper) {
+  background-color: #f5f7fa;
+  border: 1px solid #e8eaed;
+}
+
+.filter-select {
+  width: 140px;
+}
+
+:deep(.filter-select .el-input__wrapper) {
+  background-color: #f5f7fa;
+  border: 1px solid #e8eaed;
+}
+
+.search-btn {
+  background-color: #0066ff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+}
+
+.search-btn:hover {
+  background-color: #0052cc;
+}
+
+.reset-btn {
+  background-color: #f5f7fa;
+  color: #666;
+  border: 1px solid #e8eaed;
+  border-radius: 6px;
+}
+
+.reset-btn:hover {
+  background-color: #e8eaed;
+}
+
+.table-wrapper {
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+  overflow: hidden;
+}
+
+.refunds-table {
+  border: none;
+}
+
+:deep(.refunds-table .el-table__header th) {
+  background-color: #f5f7fa;
+  color: #333;
+  font-weight: 600;
+  border-bottom: 1px solid #e8eaed;
+}
+
+:deep(.refunds-table .el-table__body tr) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(.refunds-table .el-table__body tr:hover > td) {
+  background-color: #f9fafb;
+}
+
+.refund-sn {
+  font-weight: 500;
+  color: #0066ff;
+}
+
+.amount {
+  font-weight: 600;
+  color: #ff6b35;
+  font-size: 15px;
+}
+
+.pagination-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e8eaed;
+}
+
+:deep(.el-pagination) {
+  gap: 8px;
+}
+
+:deep(.el-pagination .btn-prev,
+.el-pagination .btn-next,
+.el-pagination .el-pager li) {
+  border-radius: 4px;
+  border: 1px solid #e8eaed;
+}
+
+:deep(.el-pagination .btn-prev:hover,
+.el-pagination .btn-next:hover,
+.el-pagination .el-pager li:hover) {
+  color: #0066ff;
+  border-color: #0066ff;
+}
+
+:deep(.el-pagination .el-pager li.active) {
+  color: #fff;
+  background-color: #0066ff;
+  border-color: #0066ff;
+}
+
+:deep(.detail-dialog .el-descriptions__item) {
+  padding: 12px 16px;
+}
+
+:deep(.review-dialog .el-form-item) {
   margin-bottom: 20px;
 }
 
 .proof-images {
   display: flex;
   flex-wrap: wrap;
+  gap: 8px;
 }
 </style>

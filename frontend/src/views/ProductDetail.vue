@@ -1,65 +1,100 @@
 <template>
   <div class="product-detail page-container">
-    <van-nav-bar title="商品详情" left-arrow @click-left="onClickLeft" fixed />
+    <van-nav-bar fixed />
     
     <div class="content">
+      <!-- 产品轮播 -->
       <van-swipe class="product-swipe" :autoplay="3000">
         <van-swipe-item v-for="(image, index) in images" :key="index">
           <img :src="image" />
         </van-swipe-item>
       </van-swipe>
 
+      <!-- 顶部操作栏 -->
+      <div class="top-actions">
+        <van-icon name="arrow-left" @click="onClickLeft" />
+        <div class="spacer"></div>
+        <van-icon name="heart-o" @click="toggleFavorite" />
+        <van-icon name="share-o" @click="shareProduct" />
+      </div>
+
+      <!-- 产品信息 -->
       <div class="product-info">
         <div class="price-section">
-          <span class="price">¥{{ product.price }}</span>
+          <span class="price">¥ {{ product.price }}</span>
           <span class="original-price" v-if="product.promotionPrice">¥{{ product.promotionPrice }}</span>
+          <span v-if="product.hasCommission" class="distribution-tag">分销商品</span>
         </div>
         <div class="product-name">{{ product.name }}</div>
-        <div class="product-subtitle">{{ product.subTitle }}</div>
-        <div class="product-tags">
-          <van-tag type="danger" v-if="product.newStatus">新品</van-tag>
-          <van-tag type="primary" v-if="product.recommendStatus">推荐</van-tag>
+        <div class="product-stats">
+          <span class="stat-item">月销 {{ product.sale || 0 }}+</span>
+          <span class="stat-item">好评率 98%</span>
         </div>
       </div>
 
-      <van-cell-group class="detail-group">
-        <van-cell title="库存" :value="`${product.stock || 0} ${product.unit || '件'}`" />
-        <van-cell title="已售" :value="`${product.sale || 0} 件`" />
-        <van-cell v-if="isDistributor && commission" title="推广佣金" :value="commissionText" label="推广此商品可获得" />
-      </van-cell-group>
-
-      <!-- 分销员推广工具 -->
-      <div v-if="isDistributor && commission" class="share-section">
-        <div class="share-title">🎁 推广赚佣金</div>
-        <div class="share-tip">分享给好友购买，即可获得 {{ commissionText }} 佣金</div>
-        <div class="share-actions">
-          <van-button type="primary" size="small" icon="share-o" @click="shareToWechat">
-            分享到微信
-          </van-button>
-          <van-button type="success" size="small" icon="link-o" @click="copyShareLink">
-            复制推广链接
+      <!-- 分销佣金信息 -->
+      <div v-if="commission" class="commission-section">
+        <div class="commission-header">
+          <van-icon name="gold-coin-o" />
+          <span>分销佣金</span>
+        </div>
+        <div class="commission-info">
+          <div class="commission-text">推广此商品可获得</div>
+          <div class="commission-value">{{ commissionText }}</div>
+        </div>
+        <div v-if="isDistributor" class="commission-action">
+          <van-button size="small" type="primary" @click="shareProduct">
+            <van-icon name="share-o" />
+            立即推广
           </van-button>
         </div>
       </div>
 
-      <div class="detail-content">
-        <div class="detail-title">商品详情</div>
-        <div class="detail-desc">{{ product.description }}</div>
-        <div v-if="product.detailHtml" v-html="product.detailHtml"></div>
+      <!-- 商品详情 -->
+      <div class="detail-section">
+        <div class="section-title">商品详情</div>
+        <div class="detail-content">
+          <div class="detail-item">
+            <span class="label">颜色</span>
+            <span class="value">已选：雪域白</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">尺寸</span>
+            <span class="value">已选：M</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">数量</span>
+            <div class="quantity-control">
+              <van-button size="small" @click="quantity--">−</van-button>
+              <input v-model.number="quantity" type="number" min="1" />
+              <van-button size="small" @click="quantity++">+</van-button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 商品描述 -->
+      <div class="description-section">
+        <div class="section-title">商品描述</div>
+        <div class="description-text">{{ product.description }}</div>
       </div>
     </div>
 
-    <van-action-bar safe-area-inset-bottom style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;">
-      <van-action-bar-icon icon="chat-o" text="客服" />
-      <van-action-bar-icon icon="cart-o" text="购物车" @click="goToCart" />
-      <van-action-bar-icon 
-        :icon="isFavorited ? 'star' : 'star-o'" 
-        :text="isFavorited ? '已收藏' : '收藏'" 
-        @click="toggleFavorite"
-      />
-      <van-action-bar-button type="warning" text="加入购物车" @click="addToCart" />
-      <van-action-bar-button type="danger" text="立即购买" @click="buyNow" />
-    </van-action-bar>
+    <!-- 底部操作栏 -->
+    <div class="action-bar">
+      <van-button class="btn-cart" @click="addToCart">
+        <van-icon name="shopping-cart-o" />
+        加入购物车
+      </van-button>
+      <van-button class="btn-buy" @click="buyNow">立即购买</van-button>
+    </div>
+
+    <van-tabbar v-model="active" route active-color="#e63946">
+      <van-tabbar-item icon="home-o" to="/">首页</van-tabbar-item>
+      <van-tabbar-item icon="apps-o" to="/category">分类</van-tabbar-item>
+      <van-tabbar-item icon="shopping-cart-o" to="/cart">购物车</van-tabbar-item>
+      <van-tabbar-item icon="user-o" to="/user">我的</van-tabbar-item>
+    </van-tabbar>
   </div>
 </template>
 
@@ -73,19 +108,19 @@ import { getProductCommission, getDistributorInfo } from '../api/distributor'
 
 const router = useRouter()
 const route = useRoute()
+const active = ref(2)
 
 const product = ref({})
 const images = ref([])
 const commission = ref(null)
 const distributorInfo = ref(null)
 const isFavorited = ref(false)
+const quantity = ref(1)
 
-// 是否是分销员
 const isDistributor = computed(() => {
   return distributorInfo.value && distributorInfo.value.status === 1
 })
 
-// 计算佣金显示文本
 const commissionText = computed(() => {
   if (!commission.value) return ''
   if (commission.value.commissionType === 0) {
@@ -96,7 +131,6 @@ const commissionText = computed(() => {
   }
 })
 
-// 生成推广链接
 const shareLink = computed(() => {
   if (!distributorInfo.value || !distributorInfo.value.distributorCode) return ''
   const baseUrl = window.location.origin
@@ -111,9 +145,7 @@ const loadProduct = async () => {
   try {
     const res = await getProductDetail(route.params.id)
     product.value = res.data
-    console.log('商品数据:', product.value)
     
-    // 处理图片数组
     if (product.value.albumPics && product.value.albumPics.length > 0) {
       images.value = product.value.albumPics
     } else if (product.value.pic) {
@@ -122,7 +154,6 @@ const loadProduct = async () => {
       images.value = ['https://via.placeholder.com/375x375?text=No+Image']
     }
 
-    // 加载分销员信息和佣金信息
     loadDistributorInfo()
     loadCommission()
   } catch (error) {
@@ -131,7 +162,6 @@ const loadProduct = async () => {
   }
 }
 
-// 加载分销员信息
 const loadDistributorInfo = async () => {
   const token = localStorage.getItem('token')
   if (!token) return
@@ -146,7 +176,6 @@ const loadDistributorInfo = async () => {
   }
 }
 
-// 加载佣金信息
 const loadCommission = async () => {
   try {
     const res = await getProductCommission(route.params.id)
@@ -155,59 +184,41 @@ const loadCommission = async () => {
     }
   } catch (error) {
     console.error('加载佣金信息失败:', error)
-    // 不显示错误提示，佣金信息是可选的
   }
 }
 
-// 分享到微信
-const shareToWechat = () => {
-  // 检查是否在微信环境
-  const isWechat = /micromessenger/i.test(navigator.userAgent)
-  
-  if (isWechat) {
-    // 在微信中，显示提示引导用户点击右上角分享
-    showDialog({
-      title: '分享到微信',
-      message: '请点击右上角"..."按钮\n选择"发送给朋友"或"分享到朋友圈"',
-      confirmButtonText: '我知道了'
-    })
-  } else {
-    // 不在微信中，显示推广链接和二维码
-    showDialog({
-      title: '分享推广链接',
-      message: `复制以下链接分享给好友：\n\n${shareLink.value}\n\n或扫描二维码分享`,
-      confirmButtonText: '复制链接',
-      cancelButtonText: '关闭',
-      showCancelButton: true
-    }).then(() => {
-      copyShareLink()
-    }).catch(() => {
-      // 取消
-    })
-  }
+const shareProduct = () => {
+  showDialog({
+    title: '分享商品',
+    message: '选择分享方式',
+    confirmButtonText: '复制链接',
+    cancelButtonText: '取消',
+    showCancelButton: true
+  }).then(() => {
+    copyShareLink()
+  }).catch(() => {})
 }
 
-// 复制推广链接
 const copyShareLink = async () => {
   try {
+    const link = `${window.location.origin}/product/${product.value._id}`
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(shareLink.value)
-      showToast('推广链接已复制')
+      await navigator.clipboard.writeText(link)
+      showToast('链接已复制')
     } else {
-      // 降级方案
       const textarea = document.createElement('textarea')
-      textarea.value = shareLink.value
+      textarea.value = link
       textarea.style.position = 'fixed'
       textarea.style.opacity = '0'
       document.body.appendChild(textarea)
       textarea.select()
       document.execCommand('copy')
       document.body.removeChild(textarea)
-      showToast('推广链接已复制')
+      showToast('链接已复制')
     }
   } catch (error) {
     console.error('复制失败:', error)
-    showToast('复制失败，请手动复制')
+    showToast('复制失败')
   }
 }
 
@@ -227,9 +238,8 @@ const addToCart = async () => {
   try {
     const res = await addToCartApi({
       productId: product.value._id,
-      quantity: 1
+      quantity: quantity.value
     })
-    console.log('加入购物车成功:', res)
     showToast('已加入购物车')
   } catch (error) {
     console.error('加入购物车失败:', error)
@@ -251,15 +261,11 @@ const buyNow = async () => {
   }
   
   try {
-    // 先加入购物车
     const res = await addToCartApi({
       productId: product.value._id,
-      quantity: 1
+      quantity: quantity.value
     })
     
-    console.log('立即购买，购物车项:', res.data)
-    
-    // 直接跳转到订单确认页
     router.push(`/order/confirm?ids=${res.data._id}`)
   } catch (error) {
     console.error('购买失败:', error)
@@ -267,11 +273,6 @@ const buyNow = async () => {
   }
 }
 
-const goToCart = () => {
-  router.push('/cart')
-}
-
-// 切换收藏状态
 const toggleFavorite = () => {
   try {
     let favorites = []
@@ -283,12 +284,10 @@ const toggleFavorite = () => {
     const index = favorites.findIndex(item => item._id === product.value._id)
     
     if (index > -1) {
-      // 已收藏，移除
       favorites.splice(index, 1)
       isFavorited.value = false
       showToast('已取消收藏')
     } else {
-      // 未收藏，添加
       favorites.push({
         _id: product.value._id,
         name: product.value.name,
@@ -306,7 +305,6 @@ const toggleFavorite = () => {
   }
 }
 
-// 检查是否已收藏
 const checkFavorited = () => {
   try {
     const saved = localStorage.getItem('favorites')
@@ -319,14 +317,12 @@ const checkFavorited = () => {
   }
 }
 
-// 检查并绑定分销关系
 const checkAndBindDistributor = async () => {
   const distributorCode = route.query.distributorCode
   if (!distributorCode) return
 
   const token = localStorage.getItem('token')
   if (!token) {
-    // 未登录，保存分销员代码到 localStorage，登录后再绑定
     localStorage.setItem('pendingDistributorCode', distributorCode)
     return
   }
@@ -343,7 +339,6 @@ const checkAndBindDistributor = async () => {
 onMounted(() => {
   loadProduct()
   checkAndBindDistributor()
-  // 延迟检查收藏状态，确保商品数据已加载
   setTimeout(() => {
     checkFavorited()
   }, 500)
@@ -352,18 +347,19 @@ onMounted(() => {
 
 <style scoped>
 .product-detail {
-  padding-bottom: 100px;
-  background: #f7f8fa;
+  padding-bottom: 120px;
+  background: #f5f5f5;
   min-height: 100vh;
 }
 
 .content {
   padding-top: 46px;
-  padding-bottom: 60px;
 }
 
+/* 产品轮播 */
 .product-swipe {
-  height: 375px;
+  height: 400px;
+  position: relative;
 }
 
 .product-swipe img {
@@ -372,108 +368,254 @@ onMounted(() => {
   object-fit: cover;
 }
 
-.product-info {
-  padding: 15px;
+/* 顶部操作栏 */
+.top-actions {
+  position: absolute;
+  top: 46px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  z-index: 10;
+}
+
+.top-actions :deep(.van-icon) {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  color: #333;
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* 产品信息 */
+.product-info {
+  background: white;
+  padding: 15px;
   margin-bottom: 10px;
 }
 
 .price-section {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .price {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--primary-color);
-  margin-right: 10px;
+  font-size: 28px;
+  font-weight: 700;
+  color: #e63946;
 }
 
 .original-price {
   font-size: 14px;
-  color: #969799;
+  color: #999;
   text-decoration: line-through;
 }
 
 .product-name {
   font-size: 16px;
   font-weight: 600;
-  color: #323233;
-  margin-bottom: 5px;
-}
-
-.product-subtitle {
-  font-size: 13px;
-  color: #969799;
+  color: #333;
   margin-bottom: 10px;
+  line-height: 1.4;
 }
 
-.product-tags {
+.product-stats {
   display: flex;
-  gap: 8px;
+  gap: 20px;
+  font-size: 13px;
+  color: #666;
 }
 
-.detail-group {
-  margin-bottom: 10px;
+.stat-item {
+  display: flex;
+  align-items: center;
 }
 
-.detail-content {
+/* 分销佣金信息 */
+.commission-section {
   background: white;
   padding: 15px;
+  margin-bottom: 10px;
+  border-left: 4px solid #e63946;
 }
 
-.detail-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #323233;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ebedf0;
-}
-
-.detail-desc {
+.commission-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
-  color: #646566;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-/* 确保底部操作栏可见 */
-.van-action-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-}
-
-/* 分销员推广工具 */
-.share-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 15px;
-  margin: 10px 0;
-  border-radius: 8px;
-  color: white;
-}
-
-.share-title {
-  font-size: 16px;
   font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.share-tip {
-  font-size: 13px;
-  opacity: 0.9;
+  color: #333;
   margin-bottom: 12px;
 }
 
-.share-actions {
+.commission-header :deep(.van-icon) {
+  color: #e63946;
+  font-size: 18px;
+}
+
+.commission-info {
+  margin-bottom: 12px;
+}
+
+.commission-text {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.commission-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e63946;
+}
+
+.commission-action {
   display: flex;
   gap: 10px;
 }
 
-.share-actions .van-button {
+.commission-action :deep(.van-button) {
   flex: 1;
+  background: #e63946;
+  border: none;
+}
+
+.distribution-tag {
+  display: inline-block;
+  background: #f77f88;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+/* 详情部分 */
+.detail-section {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 14px;
+}
+
+.label {
+  color: #666;
+  font-weight: 500;
+}
+
+.value {
+  color: #333;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.quantity-control input {
+  width: 40px;
+  height: 32px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.quantity-control :deep(.van-button) {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 16px;
+}
+
+/* 描述部分 */
+.description-section {
+  background: white;
+  padding: 15px;
+  margin-bottom: 10px;
+}
+
+.description-text {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 底部操作栏 */
+.action-bar {
+  position: fixed;
+  bottom: 50px;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 10px;
+  padding: 12px 15px;
+  background: white;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 100;
+}
+
+.btn-cart {
+  flex: 1;
+  background: #f77f88;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn-buy {
+  flex: 1;
+  background: #e63946;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.btn-cart :deep(.van-button__text),
+.btn-buy :deep(.van-button__text) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 </style>

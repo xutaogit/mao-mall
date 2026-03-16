@@ -66,7 +66,7 @@
       <van-cell v-if="isLoggedIn" title="退出登录" icon="logout" @click="handleLogout" />
     </van-cell-group>
 
-    <van-tabbar v-model="active" route>
+    <van-tabbar v-model="active" route active-color="#e63946">
       <van-tabbar-item icon="home-o" to="/">首页</van-tabbar-item>
       <van-tabbar-item icon="apps-o" to="/category">分类</van-tabbar-item>
       <van-tabbar-item icon="shopping-cart-o" to="/cart">购物车</van-tabbar-item>
@@ -172,29 +172,56 @@ onMounted(() => {
 
 <style scoped>
 .user {
-  background: #f7f8fa;
+  background: #f5f5f5;
   min-height: 100vh;
   padding-bottom: 50px;
 }
 
 .user-header {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #ff6034 100%);
+  background: linear-gradient(135deg, #e63946 0%, #d62828 100%);
   padding: 40px 20px 30px;
   color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.user-header::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 150px;
+  height: 150px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
 }
 
 .user-info {
   display: flex;
   align-items: center;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
 }
 
 .avatar {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   margin-right: 15px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .info {
@@ -204,18 +231,20 @@ onMounted(() => {
 .name {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .phone {
   font-size: 13px;
-  opacity: 0.8;
+  opacity: 0.85;
 }
 
 .order-section {
   background: white;
   padding: 15px;
-  margin-bottom: 10px;
+  margin: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .section-header {
@@ -228,12 +257,12 @@ onMounted(() => {
 .section-title {
   font-size: 16px;
   font-weight: 600;
-  color: #323233;
+  color: #333;
 }
 
 .section-more {
   font-size: 13px;
-  color: #969799;
+  color: #999;
   cursor: pointer;
 }
 
@@ -250,14 +279,40 @@ onMounted(() => {
   gap: 8px;
   cursor: pointer;
   padding: 8px 0;
+  transition: transform 0.2s;
+}
+
+.order-tab:active {
+  transform: scale(0.95);
+}
+
+.order-tab :deep(.van-icon) {
+  color: #e63946;
 }
 
 .order-tab span {
   font-size: 12px;
-  color: #646566;
+  color: #666;
+  font-weight: 500;
 }
 
 .menu-group {
-  margin-top: 10px;
+  margin: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.menu-group :deep(.van-cell) {
+  font-size: 14px;
+}
+
+.menu-group :deep(.van-cell__left-icon) {
+  color: #e63946;
+  font-size: 20px;
+}
+
+.menu-group :deep(.van-cell__title) {
+  font-weight: 500;
 }
 </style>

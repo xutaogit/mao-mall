@@ -158,7 +158,7 @@ onMounted(() => {
 <style scoped>
 .order-list {
   min-height: 100vh;
-  background: #f7f8fa;
+  background: #f5f5f5;
   padding-bottom: 20px;
 }
 
@@ -168,8 +168,17 @@ onMounted(() => {
 
 .order-item {
   background: white;
-  margin-bottom: 10px;
+  margin: 10px;
+  border-radius: 12px;
   cursor: pointer;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.order-item:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .order-header {
@@ -177,22 +186,24 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 12px 15px;
-  border-bottom: 1px solid #ebedf0;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
 }
 
 .order-sn {
   font-size: 13px;
-  color: #646566;
+  color: #666;
+  font-weight: 500;
 }
 
 .order-status {
   font-size: 13px;
-  color: var(--primary-color);
+  color: #e63946;
   font-weight: 600;
 }
 
 .order-goods {
-  padding: 15px;
+  padding: 12px 15px;
 }
 
 .goods-item {
@@ -210,6 +221,7 @@ onMounted(() => {
   height: 70px;
   border-radius: 8px;
   object-fit: cover;
+  background: #f0f0f0;
 }
 
 .goods-info {
@@ -220,8 +232,9 @@ onMounted(() => {
 }
 
 .goods-name {
-  font-size: 14px;
-  color: #323233;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
   line-height: 1.4;
 }
 
@@ -233,35 +246,71 @@ onMounted(() => {
 
 .price {
   font-size: 14px;
-  color: #323233;
+  font-weight: 600;
+  color: #e63946;
 }
 
 .quantity {
-  font-size: 13px;
-  color: #969799;
+  font-size: 12px;
+  color: #999;
 }
 
 .order-footer {
   padding: 12px 15px;
-  border-top: 1px solid #ebedf0;
+  border-top: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #fafafa;
 }
 
 .total-amount {
-  font-size: 14px;
-  color: #646566;
+  font-size: 13px;
+  color: #666;
 }
 
 .amount {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--primary-color);
+  font-size: 15px;
+  font-weight: 700;
+  color: #e63946;
 }
 
 .order-actions {
   display: flex;
   gap: 8px;
+}
+
+.order-actions :deep(.van-button) {
+  font-size: 12px;
+  height: 28px;
+  padding: 0 12px;
+}
+
+.order-actions :deep(.van-button--primary) {
+  background: #e63946;
+  border: none;
+}
+
+/* Tabs样式 */
+:deep(.van-tabs) {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+:deep(.van-tabs__nav) {
+  background: white;
+}
+
+:deep(.van-tab) {
+  color: #666;
+  font-weight: 500;
+}
+
+:deep(.van-tab--active) {
+  color: #e63946;
+}
+
+:deep(.van-tabs__line) {
+  background: #e63946;
 }
 </style>
