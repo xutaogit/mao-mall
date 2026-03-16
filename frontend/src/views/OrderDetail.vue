@@ -231,7 +231,7 @@ onMounted(() => {
 .order-detail {
   min-height: 100vh;
   background: #f5f5f5;
-  padding-bottom: 20px;
+  padding-bottom: 80px;
 }
 
 .content {

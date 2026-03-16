@@ -107,6 +107,7 @@ onMounted(() => {
 <style scoped>
 .category {
   background: #f5f5f5;
+  padding-bottom: 60px;
 }
 
 .content {

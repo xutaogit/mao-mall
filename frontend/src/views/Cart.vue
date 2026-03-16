@@ -164,7 +164,7 @@ onMounted(() => {
 .cart {
   background: #f5f5f5;
   min-height: 100vh;
-  padding-bottom: 100px;
+  padding-bottom: 120px;
 }
 
 .content {

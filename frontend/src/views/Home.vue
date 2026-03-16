@@ -211,6 +211,7 @@ onMounted(() => {
 <style scoped>
 .home {
   background: #f5f5f5;
+  padding-bottom: 60px;
 }
 
 /* 顶部搜索栏 */

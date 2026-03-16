@@ -1,7 +1,5 @@
 <template>
   <div class="product-detail page-container">
-    <van-nav-bar fixed />
-    
     <div class="content">
       <!-- 产品轮播 -->
       <van-swipe class="product-swipe" :autoplay="3000">
@@ -347,18 +345,18 @@ onMounted(() => {
 
 <style scoped>
 .product-detail {
-  padding-bottom: 120px;
+  padding-bottom: 180px;
   background: #f5f5f5;
   min-height: 100vh;
 }
 
 .content {
-  padding-top: 46px;
+  padding-top: 0;
 }
 
 /* 产品轮播 */
 .product-swipe {
-  height: 400px;
+  height: 360px;
   position: relative;
 }
 
@@ -371,27 +369,28 @@ onMounted(() => {
 /* 顶部操作栏 */
 .top-actions {
   position: absolute;
-  top: 46px;
+  top: 12px;
   left: 0;
   right: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
+  padding: 8px 15px;
   z-index: 10;
 }
 
 .top-actions :deep(.van-icon) {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 50%;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .spacer {
@@ -582,7 +581,7 @@ onMounted(() => {
 /* 底部操作栏 */
 .action-bar {
   position: fixed;
-  bottom: 50px;
+  bottom: 60px;
   left: 0;
   right: 0;
   display: flex;

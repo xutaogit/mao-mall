@@ -1,0 +1,7 @@
+<view class="custom-nav-bar">
+  <view class="nav-content">
+    <text class="nav-title">猫商城</text>
+  </view>
+</view>
+<web-view src="{{webUrl}}" bindmessage="onMessage"></web-view>
+
